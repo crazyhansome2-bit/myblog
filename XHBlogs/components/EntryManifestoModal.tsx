@@ -2,91 +2,136 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Terminal, X } from "lucide-react";
-import { siteConfig } from "../siteConfig";
 
-const manifestos = siteConfig.manifestos?.length ? siteConfig.manifestos : [siteConfig.bio];
+const manifestoScenes = [
+  {
+    kicker: "WE BELIEVE",
+    title: "热爱值得被保存",
+    subtitle: "每一次灵感、每一个项目、每段生活片刻，都可以成为继续前进的坐标。",
+  },
+  {
+    kicker: "WE RECORD",
+    title: "记录会让冒险留下回声",
+    subtitle: "文章、游戏、音乐和作品在这里相遇，慢慢组成属于 Linx 的个人终端。",
+  },
+  {
+    kicker: "LINX TERMINAL",
+    title: "欢迎进入",
+    subtitle: "这里持续同步作品、文章、游戏兴趣与生活活动记录。",
+  },
+];
+
+const sceneDuration = 2300;
 
 export default function EntryManifestoModal() {
   const [isOpen, setIsOpen] = useState(true);
-  const [manifesto, setManifesto] = useState(manifestos[0]);
+  const [sceneIndex, setSceneIndex] = useState(0);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setManifesto(manifestos[Math.floor(Math.random() * manifestos.length)]);
-    }, 0);
+    if (!isOpen) return;
 
-    return () => window.clearTimeout(timer);
-  }, []);
+    if (sceneIndex >= manifestoScenes.length - 1) {
+      const closeTimer = window.setTimeout(() => setIsOpen(false), sceneDuration + 650);
+      return () => window.clearTimeout(closeTimer);
+    }
+
+    const nextTimer = window.setTimeout(() => {
+      setSceneIndex((current) => current + 1);
+    }, sceneDuration);
+
+    return () => window.clearTimeout(nextTimer);
+  }, [isOpen, sceneIndex]);
+
+  const scene = manifestoScenes[sceneIndex];
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[80] flex items-center justify-center px-4 py-6"
+          className="fixed inset-0 z-[80] overflow-hidden bg-[#07111f] text-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
         >
-          <button
-            type="button"
-            className="absolute inset-0 cursor-default bg-slate-950/35 backdrop-blur-sm"
-            aria-label="关闭进站宣言"
-            onClick={() => setIsOpen(false)}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(125,211,252,0.24),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.98),rgba(8,47,73,0.88)_48%,rgba(15,23,42,0.98))]" />
+          <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:64px_64px]" />
+          <motion.div
+            className="absolute left-1/2 top-1/2 h-[46vmin] w-[46vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200/15"
+            animate={{ scale: [0.92, 1.08, 0.92], opacity: [0.22, 0.42, 0.22] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute left-1/2 top-1/2 h-[72vmin] w-[72vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10"
+            animate={{ scale: [1.05, 0.96, 1.05], opacity: [0.16, 0.34, 0.16] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
 
-          <motion.section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="entry-manifesto-title"
-            className="relative w-full max-w-lg overflow-hidden rounded-lg border border-white/45 bg-white/88 p-5 text-slate-900 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/88 dark:text-white sm:p-6"
-            initial={{ opacity: 0, y: 18, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.97 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="absolute right-5 top-5 z-20 rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white"
           >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-indigo-500 to-pink-400" />
+            跳过
+          </button>
 
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
-                  <Terminal className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-indigo-500 dark:text-indigo-300">
-                    Linx Terminal
-                  </p>
-                  <h2 id="entry-manifesto-title" className="text-base font-black sm:text-lg">
-                    进站宣言
-                  </h2>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                aria-label="关闭"
-                onClick={() => setIsOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white/70 text-slate-500 transition hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white"
+          <div className="relative z-10 flex min-h-screen items-center justify-center px-6">
+            <AnimatePresence mode="wait">
+              <motion.section
+                key={sceneIndex}
+                className="mx-auto flex max-w-5xl flex-col items-center text-center"
+                initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -22, filter: "blur(8px)" }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+                <motion.p
+                  className="mb-5 text-[11px] font-black uppercase tracking-[0.42em] text-cyan-200/80 sm:text-xs"
+                  initial={{ opacity: 0, letterSpacing: "0.24em" }}
+                  animate={{ opacity: 1, letterSpacing: "0.42em" }}
+                  transition={{ duration: 0.9, delay: 0.12 }}
+                >
+                  {scene.kicker}
+                </motion.p>
 
-            <div suppressHydrationWarning className="whitespace-pre-line border-l-2 border-indigo-400/70 pl-4 font-serif text-sm font-semibold leading-8 text-slate-700 dark:text-slate-200 sm:text-base">
-              {manifesto}
-            </div>
+                <motion.h2
+                  className="max-w-4xl text-balance text-4xl font-black leading-tight tracking-widest text-white drop-shadow-[0_0_28px_rgba(125,211,252,0.28)] sm:text-6xl md:text-7xl"
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.9, delay: 0.28, ease: "easeOut" }}
+                >
+                  {scene.title}
+                </motion.h2>
 
-            <div className="mt-6 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="inline-flex h-10 items-center rounded-md bg-slate-900 px-4 text-sm font-black text-white shadow-lg transition hover:bg-indigo-600 dark:bg-white dark:text-slate-950 dark:hover:bg-indigo-200"
-              >
-                进入站点
-              </button>
-            </div>
-          </motion.section>
+                <motion.div
+                  className="my-8 h-px w-24 bg-gradient-to-r from-transparent via-cyan-200/80 to-transparent"
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 128 }}
+                  transition={{ duration: 0.7, delay: 0.52 }}
+                />
+
+                <motion.p
+                  className="max-w-2xl text-sm font-semibold leading-8 tracking-[0.08em] text-white/72 sm:text-base"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.75, delay: 0.62 }}
+                >
+                  {scene.subtitle}
+                </motion.p>
+              </motion.section>
+            </AnimatePresence>
+          </div>
+
+          <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+            {manifestoScenes.map((_, index) => (
+              <div
+                key={index}
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  index === sceneIndex ? "w-8 bg-cyan-200" : "w-1.5 bg-white/30"
+                }`}
+              />
+            ))}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
