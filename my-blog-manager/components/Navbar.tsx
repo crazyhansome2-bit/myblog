@@ -35,7 +35,7 @@ export default function Navbar() {
           }
         }
       } catch (e) {
-        const path = localStorage.getItem('targetBlogPath') || "F:/Projects/my-blog";
+        const path = localStorage.getItem('targetBlogPath') || "F:/Projects/linx";
         setTargetBlogPath(path);
       }
     };
@@ -160,7 +160,7 @@ export default function Navbar() {
 
   const handleSyncBlogClick = () => {
     if (!targetBlogPath) {
-       const fallback = localStorage.getItem('targetBlogPath') || "F:/Projects/my-blog";
+       const fallback = localStorage.getItem('targetBlogPath') || "F:/Projects/linx";
        setTargetBlogPath(fallback);
     }
     setIsOpBoxOpen(false);

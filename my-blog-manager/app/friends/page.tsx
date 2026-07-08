@@ -3,7 +3,7 @@ import PageTransition from '../../components/PageTransition';
 import FriendsBoard from './FriendsBoard';
 
 export const metadata = {
-  title: "友链 | XingHuiSama の 博客",
+  title: "友链 | linx 的个人网站",
   description: "赛博空间里的有趣灵魂",
 };
 

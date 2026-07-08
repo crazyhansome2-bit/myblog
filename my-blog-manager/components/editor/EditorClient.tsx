@@ -44,7 +44,7 @@ export default function EditorClient({ historyPostTags, historyChatterTags, hist
           const res = await fetch(`http://127.0.0.1:${config.api_port}/api/drafts/get`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ blog_path: "F:/Projects/my-blog", id: currentDocId })
+            body: JSON.stringify({ blog_path: "F:/Projects/linx", id: currentDocId })
           });
           const data = await res.json();
           if (data.success) {
@@ -71,7 +71,7 @@ export default function EditorClient({ historyPostTags, historyChatterTags, hist
     setIsSaving(true);
 
     const payload = {
-      blog_path: "F:/Projects/my-blog",
+      blog_path: "F:/Projects/linx",
       id: docType === 'about' ? 'about' : (currentDocId === 'new' ? null : currentDocId),
       type: docType,
       title: docType === 'about' ? '关于我' : title,

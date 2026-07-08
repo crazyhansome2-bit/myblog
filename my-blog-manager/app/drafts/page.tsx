@@ -21,7 +21,7 @@ function DraftsContent() {
     title: null
   });
 
-  const blogPath = "F:/Projects/my-blog";
+  const blogPath = "F:/Projects/linx";
 
   const fetchDrafts = async () => {
     setIsLoading(true);

@@ -6,7 +6,7 @@ import PageTransition from '../../components/PageTransition';
 import ChatterBoard from './ChatterBoard';
 
 export const metadata = {
-  title: "杂谈 | XingHuiSama の 博客",
+  title: "杂谈 | linx 的个人网站",
   description: "日常碎片与灵感记录",
 };
 
