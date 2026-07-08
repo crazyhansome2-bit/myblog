@@ -33,6 +33,8 @@ export default function BackgroundSlider() {
           }}
         />
       ))}
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(8,20,36,0.50),rgba(72,111,143,0.18),rgba(241,246,247,0.25))]" />
+      <div className="absolute inset-0 opacity-[0.18] mix-blend-soft-light" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.55) 1px, transparent 0)', backgroundSize: '18px 18px' }} />
     </div>
   );
 }

@@ -71,10 +71,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div id="app-mount-root" className="flex-1 flex flex-col transition-opacity duration-1000">
               <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
                 {!siteConfig.useGradient && <BackgroundSlider />}
-                <div className="absolute inset-0 z-[-9] bg-white/30 dark:bg-slate-900/40 backdrop-blur-md transition-colors duration-1000"></div>
+                <div className="absolute inset-0 z-[-9] bg-[#f3f7f8]/45 dark:bg-[#061321]/55 backdrop-blur-md transition-colors duration-1000"></div>
 
                 <div
-                  className="absolute inset-0 z-[-8] opacity-60 dark:opacity-20 mix-blend-color transition-opacity duration-1000 transform-gpu"
+                  className="absolute inset-0 z-[-8] opacity-35 dark:opacity-25 mix-blend-color transition-opacity duration-1000 transform-gpu"
                   style={{
                     background: `linear-gradient(-45deg, ${siteConfig.themeColors.join(', ')})`,
                     backgroundSize: '400% 400%',
@@ -82,9 +82,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   }}
                 ></div>
 
-                {/* 👇 🌟 优化：手机端去掉了 mix-blend-overlay，但保留了 blur 模糊光晕，确保视觉不打折 */}
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-white/40 dark:bg-indigo-900/20 blur-[100px] rounded-full z-[-7] md:mix-blend-overlay"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/30 dark:bg-purple-900/30 blur-[100px] rounded-full z-[-7] md:mix-blend-overlay"></div>
+                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#f8fbfb]/50 to-transparent z-[-7]"></div>
+                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#061321]/45 to-transparent z-[-7]"></div>
 
                 {/* 隐藏手机端高负载粒子特效 */}
                 <div className="hidden md:block absolute inset-0 w-full h-full">

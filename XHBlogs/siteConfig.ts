@@ -3,7 +3,7 @@
 export const siteConfig = {
   // 1. 网站标题与博主信息
   title: "linx 的个人网站",
-  faviconUrl: "https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg",
+  faviconUrl: "/linx-style/beach-memory.jpg",
   authorName: "linx",
   bio: "个人网站正在搭建中，用来记录作品、文章、项目与生活片段。",
 
@@ -15,20 +15,26 @@ export const siteConfig = {
   navAfter: "个人网站",
 
   // 2. 头像设置 (支持网络链接，或将图片放入 public 文件夹后使用 "/me.jpg")
-  avatarUrl: "https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg",
+  avatarUrl: "/linx-style/beach-memory.jpg",
 
   // 3. 网站背景设置 (二选一)
   // 如果想用纯图片背景，请在下面 bgImage 写路径，并将 useGradient 设为 false
   useGradient: false,
-  themeColors: ["#a18cd1", "#fbc2eb", "#a1c4fd", "#c2e9fb"], // 呼吸流动的颜色组合
+  themeColors: ["#dbeafe", "#93b8d8", "#365d7c", "#0f2238"], // 蓝调海岸色组
 // 修改这里：变成图片数组
-  bgImages: ["https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg", "https://bu.dusays.com/2026/03/24/69c26fe4acdb5.jpg", "https://bu.dusays.com/2026/03/24/69c26fe4d9486.jpg"],
+  bgImages: [
+    "/linx-style/shore-road.jpg",
+    "/linx-style/sea-window.jpg",
+    "/linx-style/blue-street.jpg",
+    "/linx-style/crossing-sea.jpg",
+    "/linx-style/beach-memory.jpg",
+  ],
 
   // 4. 文章默认封面图 (当 Markdown 没写 cover 时显示)
-  defaultPostCover: "https://bu.dusays.com/2026/03/24/69c1e38b346cb.jpg",
+  defaultPostCover: "/linx-style/sea-window.jpg",
 
   // 5. 首页照片墙预览图
-  photoWallImage: "https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg",
+  photoWallImage: "/linx-style/beach-memory.jpg",
   musicProvider: "qq",
   qqMusicPlaylistUrl: "https://c6.y.qq.com/base/fcgi-bin/u?__=tuGhf6LbHTkl",
   qqMusicPlaylistId: "9742866890",
@@ -69,6 +75,6 @@ export const siteConfig = {
     maxOutputTokens: 150,
     temperature: 0.85,
   },
-  friendLinkApplyFormat: "名称：linx 的个人网站\n简介：记录作品、文章、项目与生活片段\n链接：https://rogerlinx.com\n头像：https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg",
+  friendLinkApplyFormat: "名称：linx 的个人网站\n简介：记录作品、文章、项目与生活片段\n链接：https://rogerlinx.com\n头像：https://rogerlinx.com/linx-style/beach-memory.jpg",
   enableLevelSystem: true,
 };

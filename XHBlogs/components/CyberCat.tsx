@@ -174,31 +174,29 @@ export default function CyberCat() {
             .cat-sprite {
               width: 100%;
               height: 100%;
-              background-image: url('/siamese-cat.png'); 
-              background-size: 300% 300%; 
+              background-image: url('/linx-style/crossing-sea.jpg'); 
+              background-size: cover; 
+              background-position: center;
               background-repeat: no-repeat;
-              image-rendering: pixelated; 
+              border-radius: 28px;
+              box-shadow: 0 18px 45px rgba(8, 20, 36, 0.35);
             }
             .cat-idle {
-              animation: idle-frames 1.2s infinite;
-              background-position-y: 0%; 
+              animation: idle-frames 3s ease-in-out infinite;
             }
             .cat-petted {
-              animation: pet-frames 0.8s infinite;
-              background-position-y: 50%; 
+              animation: pet-frames 0.8s ease-in-out infinite;
             }
             .cat-thinking {
-              animation: idle-frames 0.6s infinite;
-              background-position-y: 0%; 
+              animation: idle-frames 1.5s ease-in-out infinite;
             }
             @keyframes idle-frames {
-              0%, 33.32% { background-position-x: 0%; }
-              33.33%, 66.65% { background-position-x: 50%; }
-              66.66%, 100% { background-position-x: 100%; }
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-4px); }
             }
             @keyframes pet-frames {
-              0%, 49.99% { background-position-x: 0%; }
-              50%, 100% { background-position-x: 50%; }
+              0%, 100% { transform: scale(1); }
+              50% { transform: scale(1.04); }
             }
           `}</style>
           <div className={`cat-sprite drop-shadow-2xl ${isPetted ? 'cat-petted' : isThinking ? 'cat-thinking' : 'cat-idle'}`} />

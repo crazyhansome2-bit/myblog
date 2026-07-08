@@ -107,7 +107,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
             id: song.id || Math.random().toString(),
             title: song.name || '未知歌曲',
             artist: song.artist || song.author || '未知歌手',
-            cover: song.cover || song.pic || 'https://bu.dusays.com/2026/03/24/69c24230a5ff8.jpg',
+            cover: song.cover || song.pic || '/linx-style/crossing-sea.jpg',
             src: song.url,
             lrcUrl: song.lrcUrl || (typeof song.lrc === 'string' && song.lrc.startsWith('http') ? song.lrc : null),
             lyrics: song.lrc && !song.lrc.startsWith?.('http') ? parseLrc(song.lrc) : []
