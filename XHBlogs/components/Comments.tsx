@@ -22,21 +22,11 @@ export default function Comments() {
 
     let cancelled = false;
     const pagePath = pathname.replace(/\/$/, "") || "/";
+    const initKey = `linx:gitalk:init:${pagePath}`;
 
-    const renderGitalk = async () => {
-      containerRef.current!.innerHTML = "";
-
-      try {
-        await fetch("/api/gitalk-init", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ path: pagePath }),
-        });
-      } catch {
-        // Gitalk can still render and show the normal admin-init prompt.
-      }
-
+    const mountGitalk = () => {
       if (cancelled || !containerRef.current) return;
+      containerRef.current.innerHTML = "";
 
       const gitalk = new Gitalk({
         clientID: siteConfig.gitalkConfig.clientID,
@@ -51,6 +41,38 @@ export default function Comments() {
       });
 
       gitalk.render(containerRef.current);
+    };
+
+    const initIssue = async () => {
+      const res = await fetch("/api/gitalk-init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: pagePath }),
+      });
+
+      if (!res.ok) return false;
+
+      const data = await res.json();
+      if (data?.ok) {
+        window.localStorage.setItem(initKey, "1");
+        return Boolean(data.created);
+      }
+
+      return false;
+    };
+
+    const renderGitalk = async () => {
+      if (window.localStorage.getItem(initKey)) {
+        mountGitalk();
+        return;
+      }
+
+      mountGitalk();
+      const initPromise = initIssue().catch(() => false);
+
+      initPromise.then((created) => {
+        if (created && !cancelled) mountGitalk();
+      });
     };
 
     renderGitalk();
@@ -91,9 +113,6 @@ export default function Comments() {
             <h4 className="text-xl font-black tracking-[0.22em] text-slate-900 md:text-2xl dark:text-white">
               星港回声
             </h4>
-            <p className="mt-2 text-xs font-semibold text-slate-600 md:text-sm dark:text-sky-100">
-              使用 GitHub 登录后发言，留言会记录到站点仓库 Issue。
-            </p>
           </div>
 
           <div ref={containerRef} className="custom-gitalk-glass" />

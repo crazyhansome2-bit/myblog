@@ -4,6 +4,7 @@ const OWNER = "crazyhansome2-bit";
 const REPO = "myblog";
 const GITHUB_API = "https://api.github.com";
 const BASE_LABEL = "Gitalk";
+const CACHE_TTL_MS = 1000 * 60 * 60 * 12;
 const allowedExactPaths = new Set([
   "/",
   "/about",
@@ -15,6 +16,13 @@ const allowedExactPaths = new Set([
   "/timeline",
   "/tree",
 ]);
+
+type InitCacheStore = {
+  __linxGitalkInitCache?: Map<string, { issue: number; expiresAt: number }>;
+};
+
+const cacheStore = globalThis as typeof globalThis & InitCacheStore;
+cacheStore.__linxGitalkInitCache ||= new Map<string, { issue: number; expiresAt: number }>();
 
 function normalizePath(value: unknown) {
   const path = String(value || "/").replace(/\/$/, "") || "/";
@@ -100,6 +108,12 @@ export async function POST(request: NextRequest) {
     }
 
     const id = issueId(path);
+    const cached = cacheStore.__linxGitalkInitCache?.get(id);
+
+    if (cached && cached.expiresAt > Date.now()) {
+      return NextResponse.json({ ok: true, created: false, issue: cached.issue, cached: true });
+    }
+
     const labels = [BASE_LABEL, id];
     const labelQuery = encodeURIComponent(labels.join(","));
     const issues = await githubFetch<Array<{ number: number }>>(
@@ -108,6 +122,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (issues.length > 0) {
+      cacheStore.__linxGitalkInitCache?.set(id, {
+        issue: issues[0].number,
+        expiresAt: Date.now() + CACHE_TTL_MS,
+      });
       return NextResponse.json({ ok: true, created: false, issue: issues[0].number });
     }
 
@@ -121,6 +139,11 @@ export async function POST(request: NextRequest) {
         body: `Comment channel for https://rogerlinx.com${path}\n\nInitialized automatically by rogerlinx.com.`,
         labels,
       }),
+    });
+
+    cacheStore.__linxGitalkInitCache?.set(id, {
+      issue: issue.number,
+      expiresAt: Date.now() + CACHE_TTL_MS,
     });
 
     return NextResponse.json({ ok: true, created: true, issue: issue.number });
