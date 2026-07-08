@@ -40,12 +40,12 @@ export const siteConfig = {
   qqMusicPlaylistId: "9742866890",
   cloudMusicIds: ["1809646618", "3361076230", "1859390262"],
   social: {
-    github: "",
-    gitee: "",
-    google: "",
-    email: "",
-    qq: "",
-    wechat: "",
+    github: "https://github.com/crazyhansome2-bit",
+    gitee: "https://gitee.com/crazyhansome2-bit",
+    google: "https://mail.google.com/mail/?view=cm&fs=1&to=crazy.hansome2@gmail.com",
+    email: "crazy.hansome2@gmail.com",
+    qq: "1619499063",
+    wechat: "jlh34052",
   },
   counts: {
     photos: 128, // 照片墙数量可以手动写死或动态计算
