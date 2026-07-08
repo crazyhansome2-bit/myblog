@@ -1,12 +1,31 @@
 "use client";
 
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { siteConfig } from '../siteConfig';
 import { useToast } from './ToastProvider';
 
+const profileManifestos = siteConfig.profileManifestos?.length ? siteConfig.profileManifestos : [siteConfig.bio];
+
 export default function ProfileCard({ postCount, chatterCount, photoCount }: { postCount: number, chatterCount: number, photoCount: number }) {
   const router = useRouter();
   const { showToast } = useToast();
+  const [profileManifesto, setProfileManifesto] = useState(profileManifestos[0]);
+
+  useEffect(() => {
+    const showRandomManifesto = () => {
+      setProfileManifesto(profileManifestos[Math.floor(Math.random() * profileManifestos.length)]);
+    };
+
+    const startTimer = window.setTimeout(showRandomManifesto, 0);
+    const intervalTimer = window.setInterval(showRandomManifesto, 7000);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      window.clearInterval(intervalTimer);
+    };
+  }, []);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -31,9 +50,20 @@ export default function ProfileCard({ postCount, chatterCount, photoCount }: { p
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2 pb-1 leading-snug tracking-wider transition-colors duration-700 truncate">
               {siteConfig.authorName}
             </h1>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-md transition-colors duration-700 line-clamp-2 md:line-clamp-none">
-              {siteConfig.bio}
-            </p>
+            <div className="relative min-h-[44px] md:min-h-[72px] max-w-md overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={profileManifesto}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.45, ease: 'easeOut' }}
+                  className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed transition-colors duration-700 line-clamp-3 md:line-clamp-4"
+                >
+                  {profileManifesto}
+                </motion.p>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
