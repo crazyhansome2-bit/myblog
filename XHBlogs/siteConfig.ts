@@ -6,6 +6,10 @@ export const siteConfig = {
   faviconUrl: "/linx-style/beach-memory.jpg",
   authorName: "linx",
   bio: "个人网站正在搭建中，用来记录作品、文章、项目与生活片段。",
+  manifestos: [
+    "访问者身份确认。\n欢迎进入 Linx 的个人终端。这里持续同步作品、文章、游戏兴趣与生活活动记录。",
+    "我想把这个网站做成一个小小的据点。\n不必宏大，也不必完美，只要能真实地保存我喜欢的东西、做过的事、遇见的人，就已经很好。",
+  ],
 
   navTitle: "linx",
 

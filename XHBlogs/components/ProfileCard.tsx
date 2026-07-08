@@ -1,12 +1,19 @@
 "use client";
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { siteConfig } from '../siteConfig';
 import { useToast } from './ToastProvider';
 
+const manifestoList = siteConfig.manifestos?.length ? siteConfig.manifestos : [siteConfig.bio];
+
 export default function ProfileCard({ postCount, chatterCount, photoCount }: { postCount: number, chatterCount: number, photoCount: number }) {
   const router = useRouter();
   const { showToast } = useToast();
+  const [manifesto] = useState(() => {
+    if (typeof window === 'undefined') return manifestoList[0];
+    return manifestoList[Math.floor(Math.random() * manifestoList.length)];
+  });
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -31,8 +38,8 @@ export default function ProfileCard({ postCount, chatterCount, photoCount }: { p
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2 pb-1 leading-snug tracking-wider transition-colors duration-700 truncate">
               {siteConfig.authorName}
             </h1>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-md transition-colors duration-700 line-clamp-2 md:line-clamp-none">
-              {siteConfig.bio}
+            <p suppressHydrationWarning className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-md transition-colors duration-700 line-clamp-4 whitespace-pre-line">
+              {manifesto}
             </p>
           </div>
         </div>
