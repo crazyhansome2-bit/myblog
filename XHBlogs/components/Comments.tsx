@@ -11,8 +11,16 @@ import { siteConfig } from '../siteConfig'; // 如果路径报错，请检查层
 export default function Comments() {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const hasGitalkConfig = Boolean(
+    siteConfig.gitalkConfig.clientID &&
+    siteConfig.gitalkConfig.clientSecret &&
+    siteConfig.gitalkConfig.repo &&
+    siteConfig.gitalkConfig.owner &&
+    siteConfig.gitalkConfig.admin?.some(Boolean)
+  );
 
   useEffect(() => {
+    if (!hasGitalkConfig) return;
     if (!containerRef.current) return;
 
     // 清空之前的评论区（防止 Next.js 路由切换时重复渲染）
@@ -42,7 +50,22 @@ export default function Comments() {
       window.history.replaceState({}, document.title, url.toString());
     }
 
-  }, [pathname]);
+  }, [pathname, hasGitalkConfig]);
+
+  if (!hasGitalkConfig) {
+    return (
+      <div className="w-full mt-16 relative">
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 blur-3xl rounded-full pointer-events-none z-0"></div>
+        <div className="relative z-10 custom-gitalk-glass pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
+          <div className="mx-auto max-w-2xl rounded-2xl border border-sky-200/70 dark:border-sky-300/20 bg-white/55 dark:bg-slate-900/45 px-5 py-4 text-center shadow-lg backdrop-blur-xl">
+            <p className="text-sm md:text-base font-bold text-slate-800 dark:text-sky-50">
+              留言通道暂未接入，Gitalk 神经端口等待配置中。
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full mt-16 relative">

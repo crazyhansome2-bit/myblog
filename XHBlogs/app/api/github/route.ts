@@ -3,13 +3,24 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     // 1. 读取 Gitalk 发过来的数据
-    const body = await req.text();
+    const contentType = req.headers.get('content-type') || 'application/json';
+    const rawBody = await req.text();
+    const clientSecret = process.env.GITALK_CLIENT_SECRET;
+    let body = rawBody;
+
+    if (clientSecret && contentType.includes('application/json')) {
+      const payload = JSON.parse(rawBody || '{}');
+      body = JSON.stringify({
+        ...payload,
+        client_secret: clientSecret,
+      });
+    }
 
     // 2. 由我们自己的服务器在后台偷偷发给 GitHub，完美绕过浏览器的跨域拦截！
     const githubRes = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: {
-        'Content-Type': req.headers.get('content-type') || 'application/json',
+        'Content-Type': contentType,
         'Accept': 'application/json',
       },
       body: body,
