@@ -15,7 +15,7 @@ export const siteConfig = {
   navAfter: "个人网站",
 
   // 2. 头像设置 (支持网络链接，或将图片放入 public 文件夹后使用 "/me.jpg")
-  avatarUrl: "/linx-style/beach-memory.jpg",
+  avatarUrl: "/linx-style/avatar.jpg",
 
   // 3. 网站背景设置 (二选一)
   // 如果想用纯图片背景，请在下面 bgImage 写路径，并将 useGradient 设为 false
