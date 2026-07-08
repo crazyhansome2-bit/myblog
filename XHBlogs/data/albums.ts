@@ -5,7 +5,7 @@ export interface Album { id: string; title: string; description: string; cover: 
 export const albums: Album[] = [
   {
     id: "blue-coast",
-    title: "蓝调海岸",
+    title: "潮汐素描",
     description: "海风、街口、窗边与手绘线稿的片段。",
     cover: "/linx-style/beach-memory.jpg",
     date: "2026.07",
