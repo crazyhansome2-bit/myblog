@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Chaos Memory HP Analysis Cover</title>
+  <desc id="desc">Anime inspired deep space terminal cover for a Honkai Star Rail numerical analysis note.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9ecf4"/>
+      <stop offset="0.38" stop-color="#6285a2"/>
+      <stop offset="0.72" stop-color="#17344f"/>
+      <stop offset="1" stop-color="#081525"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff" stop-opacity="0.72"/>
+      <stop offset="1" stop-color="#81a9c8" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="girlHair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef9ff"/>
+      <stop offset="0.52" stop-color="#9cc8e7"/>
+      <stop offset="1" stop-color="#4d6f9a"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="0.5" stop-color="#a5b4fc"/>
+      <stop offset="1" stop-color="#67e8f9"/>
+    </linearGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" fill="none" stroke="#d8f3ff" stroke-opacity="0.12" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)" opacity="0.9"/>
+  <path d="M-80 780C280 650 396 760 650 635C930 497 1080 250 1690 325V960H-80Z" fill="#061321" opacity="0.55"/>
+  <path d="M-60 695C250 590 475 655 720 520C1010 360 1190 265 1665 235" fill="none" stroke="#b8f3ff" stroke-opacity="0.18" stroke-width="3"/>
+  <g filter="url(#softGlow)" opacity="0.85">
+    <circle cx="228" cy="190" r="5" fill="#bbf7d0"/>
+    <circle cx="310" cy="585" r="7" fill="#bbf7d0"/>
+    <circle cx="1265" cy="210" r="6" fill="#bbf7d0"/>
+    <circle cx="1405" cy="625" r="8" fill="#bbf7d0"/>
+    <circle cx="710" cy="158" r="4" fill="#e0f2fe"/>
+    <circle cx="1058" cy="540" r="5" fill="#e0f2fe"/>
+  </g>
+  <g transform="translate(190 155)">
+    <rect x="0" y="0" width="600" height="410" rx="32" fill="url(#panel)" stroke="#dff6ff" stroke-opacity="0.45"/>
+    <text x="48" y="80" fill="#f8fbff" font-family="Arial, sans-serif" font-size="44" font-weight="800">混沌回忆 · 血量曲线</text>
+    <text x="50" y="126" fill="#dbeafe" font-family="Arial, sans-serif" font-size="20" letter-spacing="4">CHAOS MEMORY HP ANALYSIS</text>
+    <line x1="48" y1="166" x2="545" y2="166" stroke="#dff6ff" stroke-opacity="0.35"/>
+    <polyline points="62,325 150,292 238,287 326,240 414,205 515,148" fill="none" stroke="url(#glow)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="62,332 150,306 238,302 326,265 414,248 515,226" fill="none" stroke="#f8fbff" stroke-opacity="0.35" stroke-width="3"/>
+    <g fill="#f8fbff">
+      <circle cx="62" cy="325" r="8"/><circle cx="150" cy="292" r="8"/><circle cx="238" cy="287" r="8"/>
+      <circle cx="326" cy="240" r="8"/><circle cx="414" cy="205" r="8"/><circle cx="515" cy="148" r="8"/>
+    </g>
+    <text x="62" y="365" fill="#dbeafe" font-family="Arial, sans-serif" font-size="20">容错</text>
+    <text x="408" y="120" fill="#f8fbff" font-family="Arial, sans-serif" font-size="54" font-weight="900">+18%</text>
+  </g>
+  <g transform="translate(935 145)">
+    <path d="M230 0C333 38 400 132 400 260C400 445 300 586 204 586C92 586 0 438 0 265C0 123 102 15 230 0Z" fill="#071827" opacity="0.58"/>
+    <path d="M190 88C122 113 82 184 82 296C82 432 142 528 212 528C286 528 340 418 337 292C334 157 270 82 190 88Z" fill="#f6fbff" opacity="0.92"/>
+    <path d="M121 186C120 76 189 33 260 72C330 109 366 210 344 324C326 250 286 187 226 174C183 165 151 173 121 186Z" fill="url(#girlHair)"/>
+    <path d="M128 186C83 238 72 342 108 434C128 360 164 300 214 275C181 246 148 217 128 186Z" fill="#789abb"/>
+    <path d="M166 343C208 374 255 374 298 343C300 455 278 560 230 625C190 560 168 455 166 343Z" fill="#1d3856"/>
+    <path d="M166 343C208 374 255 374 298 343" fill="none" stroke="#bae6fd" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="186" cy="242" r="9" fill="#24445e"/>
+    <circle cx="264" cy="242" r="9" fill="#24445e"/>
+    <path d="M204 292C225 304 248 304 268 292" fill="none" stroke="#24445e" stroke-width="5" stroke-linecap="round"/>
+    <path d="M62 575C168 515 300 512 410 575V690H62Z" fill="#0b2038"/>
+    <path d="M102 600C174 560 296 560 370 600" fill="none" stroke="#7dd3fc" stroke-opacity="0.5" stroke-width="4"/>
+  </g>
+  <g transform="translate(910 655)">
+    <rect width="470" height="110" rx="24" fill="#eef7fb" opacity="0.2" stroke="#dff6ff" stroke-opacity="0.35"/>
+    <text x="34" y="44" fill="#f8fbff" font-family="Arial, sans-serif" font-size="24" font-weight="800">伤害需求 = 总血量 ÷ 可用轮次</text>
+    <text x="36" y="80" fill="#dbeafe" font-family="Arial, sans-serif" font-size="18">血量上涨时，真正被压缩的是循环和失误空间。</text>
+  </g>
+  <text x="92" y="805" fill="#f8fbff" font-family="Arial, sans-serif" font-size="34" font-weight="900">Linx · 随笔记录</text>
+  <text x="92" y="844" fill="#dbeafe" font-family="Arial, sans-serif" font-size="20" letter-spacing="5">GAME DATA NOTE</text>
+</svg>
