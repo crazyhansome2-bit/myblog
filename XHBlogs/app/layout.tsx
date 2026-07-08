@@ -13,6 +13,7 @@ import GlobalToolbox from "../components/GlobalToolbox";
 import SplashScreen from "../components/SplashScreen";
 import CyberCat from '../components/CyberCat';
 import DanmakuBackground from '../components/DanmakuBackground';
+import EntryManifestoModal from '../components/EntryManifestoModal';
 
 import MobileBackButton from '../components/MobileBackButton';
 
@@ -99,6 +100,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <div className="relative z-10 flex-1 flex flex-col">
                 {children}
               </div>
+
+              <EntryManifestoModal />
 
               <div className="hidden md:block">
                 <FloatingPlayer />
