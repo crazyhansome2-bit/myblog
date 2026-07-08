@@ -79,6 +79,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [playMode, setPlayMode] = useState<PlayMode>('loop');
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioErrorStreakRef = useRef(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -199,6 +200,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   // 🌟 6. 暴露直接播放指定歌曲的方法
   const playSong = (index: number) => {
+    audioErrorStreakRef.current = 0;
     setCurrentIndex(index);
     if (!isPlaying) setIsPlaying(true); // 保证切歌后自动播放
   };
@@ -206,6 +208,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       const { currentTime, duration } = audioRef.current;
+      if (currentTime > 0) audioErrorStreakRef.current = 0;
       setCurrentTime(currentTime);
       setDuration(duration || 0);
       setProgress((currentTime / (duration || 1)) * 100);
@@ -219,6 +222,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleCanPlay = () => {
+    audioErrorStreakRef.current = 0;
+  };
+
   // 🌟 7. 处理歌曲结束
   const handleEnded = () => {
     if (playMode === 'single' && audioRef.current) {
@@ -227,6 +234,28 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     } else {
        nextSong();
     }
+  };
+
+  const handleAudioError = () => {
+    if (playlist.length <= 1) {
+      setIsPlaying(false);
+      setCurrentLyric("这首歌暂时无法播放");
+      return;
+    }
+
+    audioErrorStreakRef.current += 1;
+    setProgress(0);
+    setCurrentTime(0);
+
+    if (audioErrorStreakRef.current >= playlist.length) {
+      setIsPlaying(false);
+      setCurrentLyric("歌单里的歌曲暂时都无法播放");
+      audioErrorStreakRef.current = 0;
+      return;
+    }
+
+    setCurrentLyric("这首歌暂时无法播放，正在切下一首");
+    setCurrentIndex((prev) => (prev + 1) % playlist.length);
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,6 +297,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
           src={currentSong.src}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded} // 使用我们重写的结束处理
+          onError={handleAudioError}
+          onCanPlay={handleCanPlay}
           onLoadedMetadata={handleTimeUpdate}
         />
       )}
