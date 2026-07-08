@@ -122,7 +122,7 @@ export default function CyberCat() {
       dragElastic={0.08}
       dragMomentum={false}
       whileDrag={{ scale: 1.04, cursor: "grabbing" }}
-      className="fixed bottom-24 right-14 z-[9998] flex flex-col items-center cursor-grab active:cursor-grabbing"
+      className="fixed bottom-24 right-10 z-[9998] flex flex-col items-center cursor-grab active:cursor-grabbing"
     >
       <AnimatePresence>
         {speech && (
@@ -140,7 +140,7 @@ export default function CyberCat() {
       </AnimatePresence>
 
       <div className="relative flex items-center">
-        <div className="absolute -left-11 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2 rounded-full border border-white/45 bg-slate-900/20 p-1.5 shadow-xl shadow-slate-900/20 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/45">
+        <div className="absolute -left-9 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-1.5 rounded-full border border-white/45 bg-slate-900/20 p-1 shadow-xl shadow-slate-900/20 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/45">
           <button
             type="button"
             onClick={(event) => {
@@ -148,11 +148,11 @@ export default function CyberCat() {
               setShowInput((value) => !value);
             }}
             onPointerDown={(event) => event.stopPropagation()}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-900/20 transition hover:scale-105 hover:bg-sky-400 active:scale-95"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-900/20 transition hover:scale-105 hover:bg-sky-400 active:scale-95"
             title="和煤球聊天"
             aria-label="和煤球聊天"
           >
-            <MessageCircle size={18} fill="currentColor" strokeWidth={2.2} />
+            <MessageCircle size={16} fill="currentColor" strokeWidth={2.2} />
           </button>
 
           <button
@@ -160,11 +160,11 @@ export default function CyberCat() {
             onClick={handleFeed}
             onPointerDown={(event) => event.stopPropagation()}
             disabled={isThinking}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-900/20 transition hover:scale-105 hover:bg-cyan-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-55"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-900/20 transition hover:scale-105 hover:bg-cyan-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-55"
             title="喂小鱼干"
             aria-label="喂小鱼干"
           >
-            <Fish size={18} strokeWidth={2.5} />
+            <Fish size={16} strokeWidth={2.5} />
           </button>
         </div>
 
@@ -172,7 +172,7 @@ export default function CyberCat() {
           type="button"
           onClick={handlePetCat}
           onPointerDown={(event) => event.stopPropagation()}
-          className="cat-shell relative h-[126px] w-[144px] cursor-pointer overflow-visible rounded-[28px] border border-white/45 bg-white/25 shadow-2xl shadow-slate-950/20 backdrop-blur-md transition hover:scale-[1.02] active:scale-95 dark:border-white/10 dark:bg-slate-900/25"
+          className="cat-shell relative h-[94px] w-[108px] cursor-pointer overflow-visible rounded-3xl border border-white/45 bg-white/25 shadow-2xl shadow-slate-950/20 backdrop-blur-md transition hover:scale-[1.02] active:scale-95 dark:border-white/10 dark:bg-slate-900/25"
           aria-label="摸摸煤球"
         >
           <span className="absolute inset-x-5 bottom-2 h-5 rounded-full bg-slate-900/25 blur-xl" />
@@ -216,13 +216,13 @@ export default function CyberCat() {
           position: absolute;
           left: 50%;
           top: 50%;
-          width: 144px;
-          height: 128px;
+          width: 108px;
+          height: 96px;
           transform: translate(-50%, -50%);
           background-image: url(${catSprite.src});
-          background-size: 675px 675px;
+          background-size: 506px 506px;
           background-repeat: no-repeat;
-          background-position: -63px -42px;
+          background-position: -47px -31px;
           image-rendering: pixelated;
           filter: drop-shadow(0 14px 18px rgba(15, 23, 42, 0.22));
         }
@@ -232,12 +232,12 @@ export default function CyberCat() {
         }
 
         .cat-petted {
-          background-position: -63px -274px;
+          background-position: -47px -205px;
           animation: cat-petted 0.55s ease-in-out infinite;
         }
 
         .cat-thinking {
-          background-position: -288px -49px;
+          background-position: -216px -37px;
           animation: cat-thinking 1.1s ease-in-out infinite;
         }
 
