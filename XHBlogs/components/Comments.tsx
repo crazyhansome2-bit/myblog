@@ -20,27 +20,50 @@ export default function Comments() {
   useEffect(() => {
     if (!hasGitalkConfig || !containerRef.current) return;
 
-    containerRef.current.innerHTML = "";
+    let cancelled = false;
+    const pagePath = pathname.replace(/\/$/, "") || "/";
 
-    const gitalk = new Gitalk({
-      clientID: siteConfig.gitalkConfig.clientID,
-      clientSecret: siteConfig.gitalkConfig.clientSecret,
-      repo: siteConfig.gitalkConfig.repo,
-      owner: siteConfig.gitalkConfig.owner,
-      admin: siteConfig.gitalkConfig.admin,
-      proxy: "/api/github",
-      id: (pathname.replace(/\/$/, "") || "/").substring(0, 49),
-      distractionFreeMode: false,
-      createIssueManually: false,
-    });
+    const renderGitalk = async () => {
+      containerRef.current!.innerHTML = "";
 
-    gitalk.render(containerRef.current);
+      try {
+        await fetch("/api/gitalk-init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: pagePath }),
+        });
+      } catch {
+        // Gitalk can still render and show the normal admin-init prompt.
+      }
+
+      if (cancelled || !containerRef.current) return;
+
+      const gitalk = new Gitalk({
+        clientID: siteConfig.gitalkConfig.clientID,
+        clientSecret: siteConfig.gitalkConfig.clientSecret,
+        repo: siteConfig.gitalkConfig.repo,
+        owner: siteConfig.gitalkConfig.owner,
+        admin: siteConfig.gitalkConfig.admin,
+        proxy: "/api/github",
+        id: pagePath.substring(0, 49),
+        distractionFreeMode: false,
+        createIssueManually: false,
+      });
+
+      gitalk.render(containerRef.current);
+    };
+
+    renderGitalk();
 
     const url = new URL(window.location.href);
     if (url.searchParams.has("code")) {
       url.searchParams.delete("code");
       window.history.replaceState({}, document.title, url.toString());
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [pathname, hasGitalkConfig]);
 
   if (!hasGitalkConfig) {
