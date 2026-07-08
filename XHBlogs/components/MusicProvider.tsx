@@ -4,16 +4,41 @@ import { createContext, useContext, useState, useRef, useEffect, ReactNode } fro
 import { siteConfig } from '../siteConfig';
 
 // 【增强版 LRC 歌词解析】
-function parseLrc(lrcText: string) {
+type LyricLine = { time: number; text: string };
+
+type Song = {
+  id: string;
+  title: string;
+  artist: string;
+  cover: string;
+  src: string;
+  lrcUrl: string | null;
+  lyrics: LyricLine[];
+};
+
+type RawSong = {
+  id?: string | number;
+  name?: string;
+  artist?: string;
+  author?: string;
+  cover?: string;
+  pic?: string;
+  url?: string;
+  lrcUrl?: string;
+  lrc?: string;
+  error?: unknown;
+};
+
+function parseLrc(lrcText: string): LyricLine[] {
   if (!lrcText || lrcText.length > 30000) return [];
 
   const lines = lrcText.split(/\r?\n/);
-  const result = [];
+  const result: LyricLine[] = [];
 
-  for (let line of lines) {
+  for (const line of lines) {
     const matches = [...line.matchAll(/\[(\d{2,}):(\d{2})(?:\.(\d{2,3}))?\]/g)];
     if (matches.length > 0) {
-      let text = line.replace(/\[\d{2,}:\d{2}(?:\.\d{2,3})?\]/g, '').trim();
+      const text = line.replace(/\[\d{2,}:\d{2}(?:\.\d{2,3})?\]/g, '').trim();
 
       // 剔除控制字符
       const cleanText = text.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, "");
@@ -37,9 +62,9 @@ function parseLrc(lrcText: string) {
 type PlayMode = 'loop' | 'single' | 'random';
 
 interface MusicContextType {
-  playlist: any[];
+  playlist: Song[];
   currentIndex: number;
-  currentSong: any; // 扩展了 lyrics 属性
+  currentSong?: Song; // 扩展了 lyrics 属性
   isPlaying: boolean;
   progress: number;
   currentTime: number;
@@ -62,8 +87,17 @@ interface MusicContextType {
 
 const MusicContext = createContext<MusicContextType | null>(null);
 
+const getRandomSongIndex = (length: number, currentIndex?: number) => {
+  if (length <= 1) return 0;
+  let nextIndex = Math.floor(Math.random() * length);
+  if (currentIndex !== undefined && nextIndex === currentIndex) {
+    nextIndex = (nextIndex + 1) % length;
+  }
+  return nextIndex;
+};
+
 export function MusicProvider({ children }: { children: ReactNode }) {
-  const [playlist, setPlaylist] = useState<any[]>([]);
+  const [playlist, setPlaylist] = useState<Song[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -99,12 +133,13 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         );
 
         const res = await fetch(`/api/music?${query.toString()}`);
-        const rawResults = await res.json();
+        const rawResults: unknown = await res.json();
+        const songs = Array.isArray(rawResults) ? rawResults as RawSong[] : [];
 
-        const mergedPlaylist = rawResults
-          .filter((song: any) => song && song.url && !song.error)
-          .map((song: any) => ({
-            id: song.id || Math.random().toString(),
+        const mergedPlaylist: Song[] = songs
+          .filter((song) => song && song.url && !song.error)
+          .map((song) => ({
+            id: String(song.id || Math.random()),
             title: song.name || '未知歌曲',
             artist: song.artist || song.author || '未知歌手',
             cover: song.cover || song.pic || '/linx-style/crossing-sea.jpg',
@@ -114,17 +149,23 @@ export function MusicProvider({ children }: { children: ReactNode }) {
           }));
 
         if (isMounted) {
-          if (mergedPlaylist.length > 0) setPlaylist(mergedPlaylist);
-          else setCurrentLyric("云端链路受阻");
+          if (mergedPlaylist.length > 0) {
+            setPlaylist(mergedPlaylist);
+            setCurrentIndex(getRandomSongIndex(mergedPlaylist.length));
+          } else {
+            setCurrentLyric("云端链路受阻");
+          }
           setIsLoading(false);
         }
-      } catch (error) {
+      } catch {
         if (isMounted) { setCurrentLyric("网络初始化失败"); setIsLoading(false); }
       }
     };
 
     if (siteConfig.musicProvider === 'qq' || siteConfig.cloudMusicIds?.length > 0) fetchMusicData();
-    else setIsLoading(false);
+    else queueMicrotask(() => {
+      if (isMounted) setIsLoading(false);
+    });
 
     return () => { isMounted = false; };
   }, []);
@@ -133,6 +174,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     if (playlist.length === 0) return;
     let isMounted = true;
     const currentSong = playlist[currentIndex];
+    // Lyrics are synchronized to the selected song, including cached lyrics loaded from the API.
     setLyrics([]);
     setCurrentLyric("♪ 正在缓冲 ♪");
     if (currentSong.lyrics && currentSong.lyrics.length > 0) {
@@ -170,6 +212,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       }
     }
     return () => { isMounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, playlist.length]); // 移除 playlist 依赖防止无限循环，只依赖长度
 
   // 🌟 4. 同步音量到 audio 元素
@@ -190,7 +233,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   // 🌟 5. 重写 nextSong，加入对随机模式的处理
   const nextSong = () => {
     if (playMode === 'random') {
-      setCurrentIndex(Math.floor(Math.random() * playlist.length));
+      setCurrentIndex((prev) => getRandomSongIndex(playlist.length, prev));
     } else {
       setCurrentIndex((prev) => (prev + 1) % playlist.length);
     }
@@ -198,7 +241,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   const prevSong = () => {
     if (playMode === 'random') {
-      setCurrentIndex(Math.floor(Math.random() * playlist.length));
+      setCurrentIndex((prev) => getRandomSongIndex(playlist.length, prev));
     } else {
       setCurrentIndex((prev) => (prev - 1 + playlist.length) % playlist.length);
     }
