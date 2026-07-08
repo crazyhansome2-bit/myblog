@@ -108,7 +108,7 @@ export default function FriendsBoard() {
         <h2 className="text-lg md:text-2xl font-black text-slate-900 dark:text-white mb-2 md:mb-4 tracking-wider">
           ✨ 建立神经连接
         </h2>
-        <p className="text-xs md:text-base text-slate-600 dark:text-slate-400 font-serif mb-4 md:mb-6">
+        <p className="text-xs md:text-base text-slate-800 dark:text-sky-50 font-semibold font-serif mb-4 md:mb-6">
           欢迎各位大佬交换友链！请一键复制下方格式，并在底部的 Gitalk 留言板申请：
         </p>
 
