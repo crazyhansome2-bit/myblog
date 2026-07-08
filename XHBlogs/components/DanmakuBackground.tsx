@@ -15,6 +15,7 @@ export default function DanmakuBackground() {
   const [danmakus, setDanmakus] = useState<DanmakuItem[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
     const list = siteConfig.danmakuList || [];
     if (list.length === 0) return;
 
@@ -22,17 +23,23 @@ export default function DanmakuBackground() {
     const count = 15;
 
     for (let i = 0; i < count; i++) {
+      const duration = Math.random() * 20 + 25;
+
       generatedDanmakus.push({
         id: i,
         text: list[Math.floor(Math.random() * list.length)],
         // 现在容器本身只有 30vh 高，这里的 0-100% 就是在这个 30vh 内部随机
         // 我们留一点边距 10-90，防止字被切掉一半
         top: Math.random() * 80 + 10,
-        duration: Math.random() * 20 + 25,
-        delay: Math.random() * 20,
+        duration,
+        delay: -Math.random() * duration,
       });
     }
-    setDanmakus(generatedDanmakus);
+    queueMicrotask(() => {
+      if (isMounted) setDanmakus(generatedDanmakus);
+    });
+
+    return () => { isMounted = false; };
   }, []);
 
   return (
