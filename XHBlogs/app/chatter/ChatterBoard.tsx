@@ -95,7 +95,7 @@ export default function ChatterBoard({ chatters }: { chatters: Chatter[] }) {
               {/* 🌟 核心修改 2：卡片圆角缩小 rounded-2xl */}
               <Link
                 href={`/chatter/${chatter.slug}`}
-                className="block rounded-2xl md:rounded-[32px] bg-white/40 dark:bg-slate-800/40 backdrop-blur-2xl border border-white/50 dark:border-white/5 shadow-md md:shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden"
+                className="block rounded-2xl md:rounded-[32px] bg-white/45 dark:bg-[#102033]/85 backdrop-blur-2xl border border-white/50 dark:border-sky-200/10 shadow-md md:shadow-xl shadow-slate-900/10 dark:shadow-black/25 hover:shadow-2xl transition-all duration-700 group relative overflow-hidden"
               >
                 {chatter.cover && (
                   // 🌟 核心修改 3：图片高度自适应 h-28 -> h-52
@@ -115,12 +115,12 @@ export default function ChatterBoard({ chatters }: { chatters: Chatter[] }) {
                 {/* 🌟 核心修改 5：内部 padding 极致压缩 p-3 md:p-7 */}
                 <div className="p-3 md:p-7">
                   <div className="flex items-center justify-between mb-2 md:mb-4">
-                    <div className="text-[8px] md:text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider md:tracking-[0.2em] bg-indigo-500/5 dark:bg-indigo-400/10 px-1.5 py-0.5 md:px-3 md:py-1 rounded-md md:rounded-lg border border-indigo-500/10">
+                    <div className="text-[8px] md:text-[10px] font-black text-indigo-600 dark:text-sky-300 uppercase tracking-wider md:tracking-[0.2em] bg-indigo-500/5 dark:bg-sky-400/10 px-1.5 py-0.5 md:px-3 md:py-1 rounded-md md:rounded-lg border border-indigo-500/10 dark:border-sky-200/10">
                       {chatter.date}
                     </div>
                     {/* 心情展示 - 无封面版 */}
                     {!chatter.cover && chatter.mood && (
-                      <div className="text-[8px] md:text-[10px] font-black text-pink-600 dark:text-pink-400 bg-pink-500/5 dark:bg-pink-400/10 px-1.5 py-0.5 md:px-3 md:py-1 rounded-md md:rounded-lg border border-pink-500/10">
+                      <div className="text-[8px] md:text-[10px] font-black text-pink-600 dark:text-pink-300 bg-pink-500/5 dark:bg-pink-400/10 px-1.5 py-0.5 md:px-3 md:py-1 rounded-md md:rounded-lg border border-pink-500/10 dark:border-pink-200/10">
                         {chatter.mood}
                       </div>
                     )}
@@ -128,11 +128,11 @@ export default function ChatterBoard({ chatters }: { chatters: Chatter[] }) {
 
                   {chatter.title && (
                     // 🌟 核心修改 6：标题压缩 text-sm md:text-xl
-                    <h3 className="text-sm md:text-xl font-bold text-slate-800 dark:text-white mb-1.5 md:mb-4 leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 md:line-clamp-none">{chatter.title}</h3>
+                    <h3 className="text-sm md:text-xl font-bold text-slate-800 dark:text-white mb-1.5 md:mb-4 leading-tight group-hover:text-indigo-600 dark:group-hover:text-sky-300 transition-colors line-clamp-2 md:line-clamp-none">{chatter.title}</h3>
                   )}
 
                   {/* 🌟 核心修改 7：正文压缩，限制行数 */}
-                  <div className="text-[10px] md:text-sm text-slate-600 dark:text-slate-300 leading-snug md:leading-relaxed line-clamp-4 md:line-clamp-5 opacity-90 font-medium italic">
+                  <div className="text-[10px] md:text-sm text-slate-600 dark:text-slate-200 leading-snug md:leading-relaxed line-clamp-4 md:line-clamp-5 opacity-90 font-medium italic">
                     {chatter.content}
                   </div>
 
@@ -140,7 +140,7 @@ export default function ChatterBoard({ chatters }: { chatters: Chatter[] }) {
                   {chatter.tags && chatter.tags.length > 0 && (
                     <div className="mt-3 md:mt-6 flex flex-wrap gap-1 md:gap-2">
                       {chatter.tags.map(t => (
-                        <span key={t} className="text-[8px] md:text-[9px] font-black text-slate-500 dark:text-slate-400 bg-slate-500/5 dark:bg-white/5 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md border border-slate-500/10 dark:border-white/5 transition-all group-hover:bg-indigo-500/10 group-hover:text-indigo-500">
+                        <span key={t} className="text-[8px] md:text-[9px] font-black text-slate-500 dark:text-sky-200/80 bg-slate-500/5 dark:bg-sky-400/10 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded-md border border-slate-500/10 dark:border-sky-200/10 transition-all group-hover:bg-indigo-500/10 group-hover:text-indigo-500 dark:group-hover:text-sky-300">
                           #{t}
                         </span>
                       ))}
