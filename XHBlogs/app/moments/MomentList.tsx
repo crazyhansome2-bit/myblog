@@ -5,6 +5,20 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { MapPin, MessageSquare, Clock, Sparkles, Search, ArrowDownAZ, ArrowUpZA, ChevronLeft, ChevronRight, Ghost } from 'lucide-react';
 import MomentComments from '../../components/MomentComments';
 
+type MomentItem = {
+  id: string;
+  content: string;
+  date: string;
+  location?: string;
+  images?: string[];
+};
+
+type MomentListProps = {
+  moments?: MomentItem[];
+  authorName: string;
+  avatarUrl: string;
+};
+
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
@@ -15,7 +29,7 @@ function timeAgo(dateStr: string) {
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 }
 
-export default function MomentList({ moments, authorName, avatarUrl }: any) {
+export default function MomentList({ moments, authorName, avatarUrl }: MomentListProps) {
   const [openCommentId, setOpenCommentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
@@ -90,7 +104,7 @@ export default function MomentList({ moments, authorName, avatarUrl }: any) {
     );
   };
 
-  const renderMomentCard = (moment: any) => (
+  const renderMomentCard = (moment: MomentItem) => (
     <motion.div
       key={moment.id}
       layout
@@ -184,13 +198,13 @@ export default function MomentList({ moments, authorName, avatarUrl }: any) {
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center py-12 md:py-24 min-h-[300px] md:min-h-[450px]">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center px-6 md:px-10 py-12 md:py-20 bg-white/40 dark:bg-slate-800/30 backdrop-blur-3xl rounded-[32px] md:rounded-[50px] border border-white/30 dark:border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] max-w-lg w-full mx-auto">
-              <div className="w-16 h-16 md:w-24 md:h-24 bg-indigo-500/10 rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 relative">
-                <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full animate-pulse"></div>
-                <Ghost size={32} className="md:w-12 md:h-12 text-indigo-500 relative z-10" strokeWidth={1.5} />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center px-6 md:px-10 py-12 md:py-20 bg-white/45 dark:bg-[#102033]/85 backdrop-blur-3xl rounded-[32px] md:rounded-[50px] border border-white/30 dark:border-sky-200/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.45)] max-w-lg w-full mx-auto transition-colors duration-700">
+              <div className="w-16 h-16 md:w-24 md:h-24 bg-indigo-500/10 dark:bg-sky-400/10 rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 relative">
+                <div className="absolute inset-0 bg-indigo-500/20 dark:bg-sky-400/20 blur-2xl rounded-full animate-pulse"></div>
+                <Ghost size={32} className="md:w-12 md:h-12 text-indigo-500 dark:text-sky-300 relative z-10" strokeWidth={1.5} />
               </div>
               <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mb-2 md:mb-4 tracking-tight">{searchQuery ? "没找到相关记忆" : "朋友圈空空如也"}</h2>
-              <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-lg leading-relaxed px-2 md:px-4">{searchQuery ? `尝试精简你的搜索词，或者换个心情再次出发。` : `还没有记录下任何生活碎片呢。`}</p>
+              <p className="text-slate-500 dark:text-slate-300 font-medium text-sm md:text-lg leading-relaxed px-2 md:px-4">{searchQuery ? `尝试精简你的搜索词，或者换个心情再次出发。` : `还没有记录下任何生活碎片呢。`}</p>
             </motion.div>
           </div>
         )}
