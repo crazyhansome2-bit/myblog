@@ -13,7 +13,6 @@ export default function Comments() {
   const pathname = usePathname();
   const hasGitalkConfig = Boolean(
     siteConfig.gitalkConfig.clientID &&
-    siteConfig.gitalkConfig.clientSecret &&
     siteConfig.gitalkConfig.repo &&
     siteConfig.gitalkConfig.owner &&
     siteConfig.gitalkConfig.admin?.some(Boolean)
