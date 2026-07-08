@@ -29,6 +29,9 @@ export const siteConfig = {
 
   // 5. 首页照片墙预览图
   photoWallImage: "https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg",
+  musicProvider: "qq",
+  qqMusicPlaylistUrl: "https://c6.y.qq.com/base/fcgi-bin/u?__=tuGhf6LbHTkl",
+  qqMusicPlaylistId: "9742866890",
   cloudMusicIds: ["1809646618", "3361076230", "1859390262"],
   social: {
     github: "",

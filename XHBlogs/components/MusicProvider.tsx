@@ -84,7 +84,20 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
     const fetchMusicData = async () => {
       try {
-        const res = await fetch(`/api/music?ids=${siteConfig.cloudMusicIds.join(',')}`);
+        const musicProvider = siteConfig.musicProvider || 'netease';
+        const query = new URLSearchParams(
+          musicProvider === 'qq'
+            ? {
+                provider: 'qq',
+                playlistId: siteConfig.qqMusicPlaylistId || '',
+                playlistUrl: siteConfig.qqMusicPlaylistUrl || '',
+              }
+            : {
+                ids: siteConfig.cloudMusicIds.join(','),
+              }
+        );
+
+        const res = await fetch(`/api/music?${query.toString()}`);
         const rawResults = await res.json();
 
         const mergedPlaylist = rawResults
@@ -95,8 +108,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
             artist: song.artist || song.author || '未知歌手',
             cover: song.cover || song.pic || 'https://bu.dusays.com/2026/03/24/69c24230a5ff8.jpg',
             src: song.url,
-            lrcUrl: null,
-            lyrics: song.lrc ? parseLrc(song.lrc) : []
+            lrcUrl: song.lrcUrl || (typeof song.lrc === 'string' && song.lrc.startsWith('http') ? song.lrc : null),
+            lyrics: song.lrc && !song.lrc.startsWith?.('http') ? parseLrc(song.lrc) : []
           }));
 
         if (isMounted) {
@@ -109,7 +122,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    if (siteConfig.cloudMusicIds?.length > 0) fetchMusicData();
+    if (siteConfig.musicProvider === 'qq' || siteConfig.cloudMusicIds?.length > 0) fetchMusicData();
     else setIsLoading(false);
 
     return () => { isMounted = false; };
