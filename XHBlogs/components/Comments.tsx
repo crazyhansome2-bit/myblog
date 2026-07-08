@@ -1,131 +1,212 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
-import 'gitalk/dist/gitalk.css';
-import Gitalk from 'gitalk';
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
-// 🌟 引入全局配置，读取你的 GitHub OAuth 凭证
-import { siteConfig } from '../siteConfig'; // 如果路径报错，请检查层级是否需要改成 '../../siteConfig'
+type CommentItem = {
+  id: number;
+  author: string;
+  body: string;
+  createdAt: string;
+  url: string;
+};
+
+type CommentsResponse = {
+  configured: boolean;
+  comments: CommentItem[];
+};
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
 
 export default function Comments() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const hasGitalkConfig = Boolean(
-    siteConfig.gitalkConfig.clientID &&
-    siteConfig.gitalkConfig.repo &&
-    siteConfig.gitalkConfig.owner &&
-    siteConfig.gitalkConfig.admin?.some(Boolean)
-  );
+  const pagePath = useMemo(() => pathname.replace(/\/$/, "") || "/", [pathname]);
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [isConfigured, setIsConfigured] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState("");
+  const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
+  const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
+
+  const loadComments = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/comments?path=${encodeURIComponent(pagePath)}`, {
+        cache: "no-store",
+      });
+      const data = (await res.json()) as CommentsResponse;
+      setIsConfigured(data.configured);
+      setComments(data.comments || []);
+    } catch {
+      setStatus("留言通道暂时无法连接，请稍后再试。");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!hasGitalkConfig) return;
-    if (!containerRef.current) return;
+    loadComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagePath]);
 
-    // 清空之前的评论区（防止 Next.js 路由切换时重复渲染）
-    containerRef.current.innerHTML = '';
-
-    const gitalk = new Gitalk({
-      clientID: siteConfig.gitalkConfig.clientID,
-      clientSecret: siteConfig.gitalkConfig.clientSecret,
-      repo: siteConfig.gitalkConfig.repo,
-      owner: siteConfig.gitalkConfig.owner,
-      admin: siteConfig.gitalkConfig.admin,
-
-      // 👇 指向我们自己的同源 API，彻底告别跨域和第三方拦截！
-      proxy: '/api/github',
-
-      id: (pathname.replace(/\/$/, '') || '/').substring(0, 49),
-      distractionFreeMode: false,
-    });
-
-    gitalk.render(containerRef.current);
-
-    // 👇 🌟 核心修复：擦除 URL 中的 OAuth 凭证，防止注销后二次登录失败
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('code')) {
-      url.searchParams.delete('code');
-      // 使用 replaceState 无痕修改地址栏，页面不会刷新，也不会留下历史记录
-      window.history.replaceState({}, document.title, url.toString());
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!name.trim() || !message.trim()) {
+      setStatus("请先填写昵称和留言内容。");
+      return;
     }
 
-  }, [pathname, hasGitalkConfig]);
+    setIsSubmitting(true);
+    setStatus("");
 
-  if (!hasGitalkConfig) {
-    return (
-      <div className="w-full mt-16 relative">
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 blur-3xl rounded-full pointer-events-none z-0"></div>
-        <div className="relative z-10 custom-gitalk-glass pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
-          <div className="mx-auto max-w-2xl rounded-2xl border border-sky-200/70 dark:border-sky-300/20 bg-white/55 dark:bg-slate-900/45 px-5 py-4 text-center shadow-lg backdrop-blur-xl">
-            <p className="text-sm md:text-base font-bold text-slate-800 dark:text-sky-50">
-              留言通道暂未接入，Gitalk 神经端口等待配置中。
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          path: pagePath,
+          name: name.trim(),
+          contact: contact.trim(),
+          message: message.trim(),
+          website,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "留言发送失败");
+      }
+
+      setMessage("");
+      setStatus("留言已写入终端记录。");
+      await loadComments();
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "留言发送失败，请稍后再试。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="w-full mt-16 relative">
-      {/* 🌟 视觉特效：底部环境光晕（保留氛围感） */}
       <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 blur-3xl rounded-full pointer-events-none z-0"></div>
 
-      {/* 🌟 Gitalk 容器：加入了优雅的顶部细边框，配合 custom-gitalk-glass 类名渲染毛玻璃 */}
-      <div ref={containerRef} className="relative z-10 custom-gitalk-glass pt-6 border-t border-slate-200/50 dark:border-slate-700/50" />
+      <div className="relative z-10 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
+        <div className="mx-auto max-w-3xl rounded-3xl border border-white/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/45 p-5 md:p-7 shadow-xl backdrop-blur-xl">
+          <div className="mb-5 text-center">
+            <h4 className="text-lg md:text-2xl font-black tracking-widest text-slate-900 dark:text-white">
+              终端留言通道
+            </h4>
+            <p className="mt-2 text-xs md:text-sm font-semibold text-slate-600 dark:text-sky-100">
+              留下你的坐标、想法，或者友链申请。
+            </p>
+          </div>
 
-      {/* 🌟 毛玻璃样式魔改核心 (覆盖 Gitalk 默认样式) */}
-      <style jsx global>{`
-        .custom-gitalk-glass .gt-container .gt-header-textarea {
-          background: rgba(255, 255, 255, 0.1) !important;
-          backdrop-filter: blur(12px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.2) !important;
-          border-radius: 16px !important;
-          color: inherit !important;
-          transition: all 0.3s ease;
-        }
-        .custom-gitalk-glass .gt-container .gt-header-textarea:focus {
-          background: rgba(255, 255, 255, 0.2) !important;
-          border-color: #6366f1 !important; /* Indigo 500 */
-          box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-header-preview {
-          background: rgba(255, 255, 255, 0.1) !important;
-          backdrop-filter: blur(12px) !important;
-          border-radius: 16px !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-btn {
-          background: #6366f1 !important;
-          border: none !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4) !important;
-          transition: transform 0.2s, box-shadow 0.2s;
-          color: white !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6) !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-comment-content {
-          background: rgba(255, 255, 255, 0.05) !important;
-          backdrop-filter: blur(8px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          border-radius: 16px !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-comment-admin .gt-comment-content {
-          border-color: rgba(99, 102, 241, 0.3) !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-avatar {
-          border-radius: 50% !important;
-          overflow: hidden;
-        }
-        .custom-gitalk-glass .gt-container .gt-comment-body {
-          color: inherit !important;
-        }
-        .custom-gitalk-glass .gt-container a {
-          color: #6366f1 !important;
-        }
-      `}</style>
+          {!isConfigured ? (
+            <div className="rounded-2xl border border-sky-200/70 dark:border-sky-300/20 bg-white/55 dark:bg-slate-950/45 px-5 py-4 text-center">
+              <p className="text-sm md:text-base font-bold text-slate-800 dark:text-sky-50">
+                留言服务等待接入：请在 Vercel 配置 GITHUB_TOKEN。
+              </p>
+            </div>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <input
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="hidden"
+                />
+                <div className="grid gap-3 md:grid-cols-2">
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    maxLength={40}
+                    placeholder="昵称"
+                    className="rounded-2xl border border-white/50 dark:border-slate-700/60 bg-white/70 dark:bg-slate-950/50 px-4 py-3 text-sm font-bold text-slate-800 dark:text-sky-50 outline-none transition focus:border-indigo-400"
+                  />
+                  <input
+                    value={contact}
+                    onChange={(event) => setContact(event.target.value)}
+                    maxLength={80}
+                    placeholder="联系方式，可选"
+                    className="rounded-2xl border border-white/50 dark:border-slate-700/60 bg-white/70 dark:bg-slate-950/50 px-4 py-3 text-sm font-bold text-slate-800 dark:text-sky-50 outline-none transition focus:border-indigo-400"
+                  />
+                </div>
+                <textarea
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  maxLength={2000}
+                  rows={5}
+                  placeholder="写点什么..."
+                  className="w-full rounded-2xl border border-white/50 dark:border-slate-700/60 bg-white/70 dark:bg-slate-950/50 px-4 py-3 text-sm font-semibold leading-relaxed text-slate-800 dark:text-sky-50 outline-none transition focus:border-indigo-400"
+                />
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <p className="min-h-5 text-xs font-bold text-slate-600 dark:text-sky-100">
+                    {status}
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="rounded-full bg-gradient-to-r from-indigo-500 to-sky-500 px-6 py-2.5 text-sm font-black tracking-widest text-white shadow-lg shadow-indigo-500/30 transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSubmitting ? "发送中..." : "发送留言"}
+                  </button>
+                </div>
+              </form>
+
+              <div className="mt-8 space-y-4">
+                {isLoading ? (
+                  <p className="text-center text-sm font-bold text-slate-600 dark:text-sky-100">
+                    正在同步留言记录...
+                  </p>
+                ) : comments.length === 0 ? (
+                  <p className="rounded-2xl border border-dashed border-slate-300/70 dark:border-slate-600/70 px-5 py-6 text-center text-sm font-bold text-slate-600 dark:text-sky-100">
+                    暂无留言，来做第一个留下坐标的人。
+                  </p>
+                ) : (
+                  comments.map((comment) => (
+                    <article
+                      key={comment.id}
+                      className="rounded-2xl border border-white/45 dark:border-slate-700/55 bg-white/55 dark:bg-slate-950/40 p-4 text-left shadow-sm"
+                    >
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-sm font-black text-slate-900 dark:text-white">
+                          {comment.author}
+                        </span>
+                        <a
+                          href={comment.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-indigo-600 dark:text-indigo-300"
+                        >
+                          {formatDate(comment.createdAt)}
+                        </a>
+                      </div>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                        {comment.body}
+                      </p>
+                    </article>
+                  ))
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
