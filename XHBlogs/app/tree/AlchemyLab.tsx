@@ -460,16 +460,16 @@ export default function AlchemyLab({ posts = [], chatters = [], moments = [] }: 
               </div>
               <div className="flex flex-col">
                 <span className="text-[#e8e4d9] font-serif font-black text-xl tracking-widest flex items-center gap-2">
-                  炼金术士档案 <Award size={18} className="text-[#d4af37]" />
+                  漂泊者共鸣档案 <Award size={18} className="text-[#d4af37]" />
                 </span>
-                <span className="text-[#8b6b4a] text-xs font-mono tracking-widest mt-0.5">ALCHEMY RANK</span>
+                <span className="text-[#8b6b4a] text-xs font-mono tracking-widest mt-0.5">ROVER RESONANCE</span>
               </div>
             </div>
 
             {/* 中间：鎏金经验条 */}
             <div className="flex-1 w-full md:max-w-md flex flex-col z-10">
               <div className="flex justify-between items-end mb-2 px-1">
-                <span className="text-[#d4af37] text-xs font-black tracking-widest uppercase">Experience</span>
+                <span className="text-[#d4af37] text-xs font-black tracking-widest uppercase">Resonance</span>
                 <span className="text-[#e8e4d9] text-xs font-mono font-bold tracking-wider">
                   {rpgStats.remainingExp} <span className="text-[#8b6b4a] font-normal">/ {rpgStats.expNeededForNextLevel}</span>
                 </span>
@@ -487,11 +487,11 @@ export default function AlchemyLab({ posts = [], chatters = [], moments = [] }: 
             {/* 右侧：今日结算面板 (带悬浮明细) */}
             <div className="flex items-center gap-6 z-20 md:border-l border-[#8b6b4a]/30 md:pl-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 mt-2 md:mt-0 relative group/tooltip cursor-help">
               <div className="flex flex-col items-center flex-1 md:flex-none">
-                <span className="text-[#8b6b4a] text-[10px] font-bold tracking-widest mb-1 border-b border-dashed border-[#8b6b4a]/50">今日研习</span>
+                <span className="text-[#8b6b4a] text-[10px] font-bold tracking-widest mb-1 border-b border-dashed border-[#8b6b4a]/50">今日共鸣</span>
                 <span className="text-[#10b981] font-mono text-sm font-black">+{rpgStats.todayExp} EXP</span>
               </div>
               <div className="flex flex-col items-center flex-1 md:flex-none">
-                <span className="text-[#8b6b4a] text-[10px] font-bold tracking-widest mb-1.5">今日冥想 (打卡)</span>
+                <span className="text-[#8b6b4a] text-[10px] font-bold tracking-widest mb-1.5">今日抵达 (打卡)</span>
                 {rpgStats.isCheckedInToday ? (
                   <span className="text-[#d4af37] text-[10px] font-black tracking-widest border border-[#d4af37]/50 px-2 py-0.5 rounded-md bg-[#d4af37]/10 shadow-[0_0_10px_rgba(212,175,55,0.2)]">已完成</span>
                 ) : (
@@ -517,17 +517,17 @@ export default function AlchemyLab({ posts = [], chatters = [], moments = [] }: 
           <div className="bg-[#231a16]/80 backdrop-blur-md px-6 py-5 rounded-3xl border border-[#8b6b4a]/40 shadow-[0_5px_20px_rgba(0,0,0,0.5)] relative z-10">
             <div className="flex justify-between items-center mb-4 border-b border-[#8b6b4a]/30 pb-2">
               <h3 className="text-[#d4af37] font-black tracking-widest text-sm uppercase flex items-center gap-2">
-                <Shield size={18} /> 荣誉陈列室
+                <Shield size={18} /> 回声收藏室
               </h3>
               <button onClick={() => setShowCatalog(true)} className="flex items-center gap-1.5 text-[10px] font-black text-[#e8e4d9] bg-[#d4af37]/20 hover:bg-[#d4af37]/40 px-3 py-1.5 rounded-lg border border-[#d4af37]/50 transition-colors">
-                <Grid size={12} /> 展开全图鉴
+                <Grid size={12} /> 展开全回声
               </button>
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-6 justify-start py-2 min-h-[70px]">
               {rpgStats.ownedBadges.length > 0 ? (
                 rpgStats.ownedBadges.map((badge, idx) => <HexBadge key={idx} badge={badge} />)
               ) : (
-                <p className="text-[#8b6b4a] text-xs italic w-full text-center py-4">徽章墙空空如也，快去研习魔法吧！</p>
+                <p className="text-[#8b6b4a] text-xs italic w-full text-center py-4">回声暂未归档，继续记录新的旅途吧。</p>
               )}
             </div>
           </div>
@@ -544,7 +544,7 @@ export default function AlchemyLab({ posts = [], chatters = [], moments = [] }: 
                   className="relative w-full max-w-4xl max-h-[85vh] bg-[#1a110b] border-2 border-[#8b6b4a] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col"
                 >
                   <div className="flex justify-between items-center px-6 py-4 border-b border-[#8b6b4a]/30 bg-[#231a16]">
-                    <h2 className="text-[#d4af37] font-black tracking-widest flex items-center gap-2 text-lg"><Grid size={20} /> 炼金徽章全图鉴</h2>
+                    <h2 className="text-[#d4af37] font-black tracking-widest flex items-center gap-2 text-lg"><Grid size={20} /> 漂泊回声全图鉴</h2>
                     <button onClick={() => setShowCatalog(false)} className="text-[#8b6b4a] hover:text-[#e8e4d9] transition-colors"><X size={24} /></button>
                   </div>
 
@@ -552,7 +552,7 @@ export default function AlchemyLab({ posts = [], chatters = [], moments = [] }: 
 
                     <div className="flex items-center gap-4 mb-8">
                       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#8b6b4a]/50 to-transparent" />
-                      <span className="text-[#8b6b4a] text-xs font-black tracking-widest uppercase flex items-center gap-2"><Award size={14} /> 资质等级徽章 (满级 Lv.50)</span>
+                      <span className="text-[#8b6b4a] text-xs font-black tracking-widest uppercase flex items-center gap-2"><Award size={14} /> 共鸣等级徽章 (满级 Lv.50)</span>
                       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#8b6b4a]/50 to-transparent" />
                     </div>
                     <div className="flex flex-wrap gap-x-6 gap-y-10 justify-center">

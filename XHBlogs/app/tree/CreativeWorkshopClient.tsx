@@ -4,14 +4,30 @@ import { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import PageTransition from '../../components/PageTransition';
 import { motion, AnimatePresence } from 'framer-motion';
-import {Beaker, Rocket, Trees, Wrench} from 'lucide-react'; // 🌟 暂时移除了 Sofa 图标
+import { Compass, Rocket, Waves } from 'lucide-react';
 import { siteConfig } from '../../siteConfig'; // 🌟 引入站点配置
 
 import AlchemyLab from './AlchemyLab';
 import DijiangModel from './DijiangModel';
 // import OperatorRecreation from './OperatorRecreation'; // 🌟 先注释掉，以后需要随时可以加回来
 
-export default function CreativeWorkshopClient({ posts = [], chatters = [], moments = [] }: any) {
+type WorkshopItem = {
+  id?: string;
+  slug?: string;
+  title?: string;
+  type?: string;
+  date?: string;
+  cover?: string | null;
+  content?: string;
+};
+
+type CreativeWorkshopProps = {
+  posts?: WorkshopItem[];
+  chatters?: WorkshopItem[];
+  moments?: WorkshopItem[];
+};
+
+export default function CreativeWorkshopClient({ posts = [], chatters = [], moments = [] }: CreativeWorkshopProps) {
   const [currentMode, setCurrentMode] = useState<'alchemy' | 'model'>('alchemy'); // 🌟 暂时只保留两个状态
 
   // =========================================================
@@ -93,27 +109,29 @@ export default function CreativeWorkshopClient({ posts = [], chatters = [], mome
         <div className="w-full max-w-7xl mx-auto mt-24 px-4 sm:px-10 relative z-10 flex flex-col items-center">
 
           {/* 顶部标题栏 */}
-          <div className="w-full flex flex-col items-center mb-16 animate-fade-in-up text-center">
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-widest mb-3 flex items-center justify-center gap-3 transition-colors duration-700">
-              <Trees className="text-indigo-500" size={40} /> 灵境
+          <div className="w-full flex flex-col items-center mb-16 animate-fade-in-up text-center relative">
+            <div className="absolute -top-10 left-1/2 h-28 w-28 -translate-x-1/2 rounded-full border border-cyan-300/30 bg-cyan-200/10 blur-sm dark:border-cyan-300/20 dark:bg-cyan-300/10" />
+            <div className="absolute top-8 left-1/2 h-px w-full max-w-2xl -translate-x-1/2 bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
+            <h1 className="relative text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-widest mb-3 flex items-center justify-center gap-3 transition-colors duration-700">
+              <Compass className="text-cyan-500 dark:text-cyan-300" size={40} /> 漂泊终点
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 font-medium tracking-wider mb-8 transition-colors duration-700">
-              从神秘的记忆试管到深邃的星际巨舰，在这里封存所有的灵感与奇迹
+            <p className="relative text-slate-600 dark:text-slate-300 font-medium tracking-wider mb-8 transition-colors duration-700">
+              在潮声尽头收束每一次抵达，把文章、随笔与瞬间思绪封存为漂泊者的回声档案
             </p>
 
             {/* 切换开关 */}
-            <div className="flex bg-white/40 dark:bg-slate-800/40 backdrop-blur-md p-1.5 rounded-full border border-white/50 dark:border-white/10 shadow-sm relative">
+            <div className="flex bg-white/45 dark:bg-slate-900/45 backdrop-blur-md p-1.5 rounded-full border border-cyan-200/60 dark:border-cyan-200/10 shadow-sm relative">
               <button
                 onClick={() => setCurrentMode('alchemy')}
-                className={`relative px-6 py-2.5 rounded-full text-sm font-bold transition-all z-10 flex items-center gap-2 ${currentMode === 'alchemy' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                className={`relative px-6 py-2.5 rounded-full text-sm font-bold transition-all z-10 flex items-center gap-2 ${currentMode === 'alchemy' ? 'text-cyan-700 dark:text-cyan-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
               >
-                <Beaker size={16} /> 记忆炼金室
+                <Waves size={16} /> 共鸣回廊
               </button>
               <button
                 onClick={() => setCurrentMode('model')}
-                className={`relative px-6 py-2.5 rounded-full text-sm font-bold transition-all z-10 flex items-center gap-2 ${currentMode === 'model' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                className={`relative px-6 py-2.5 rounded-full text-sm font-bold transition-all z-10 flex items-center gap-2 ${currentMode === 'model' ? 'text-cyan-700 dark:text-cyan-300' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
               >
-                <Rocket size={16} /> 帝江号舰船
+                <Rocket size={16} /> 终点航迹
               </button>
 
               {/* 🌟 第三选项干员休息处暂时隐藏 */}
@@ -122,7 +140,7 @@ export default function CreativeWorkshopClient({ posts = [], chatters = [], mome
               <motion.div
                 layout
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="absolute top-1.5 bottom-1.5 bg-white dark:bg-slate-700 rounded-full z-0 shadow-sm border border-slate-100 dark:border-slate-600"
+                className="absolute top-1.5 bottom-1.5 bg-white dark:bg-slate-800 rounded-full z-0 shadow-sm border border-cyan-100 dark:border-cyan-300/20"
                 style={{
                   width: 'calc(50% - 6px)', // 🌟 改为平分两份宽度
                   left: currentMode === 'alchemy' ? '6px' : 'calc(50% + 2px)' // 🌟 对应两种状态的计算位置

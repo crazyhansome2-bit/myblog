@@ -28,10 +28,10 @@ export default function ThemeToggleBlock() {
        </div>
        <div className="text-center z-10 mt-auto">
            <h3 className={`text-xl font-bold transition-colors duration-500 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-             {isDark ? '夜间模式' : '日间模式'}
+             {isDark ? '夜间同步' : '日间同步'}
            </h3>
            <p className={`text-sm font-medium mt-1 transition-colors duration-500 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-             {isDark ? '流萤飞舞的深空' : '落樱漫舞的清晨'}
+             {isDark ? '随现实时间入夜' : '随现实时间入昼'}
            </p>
        </div>
     </div>
