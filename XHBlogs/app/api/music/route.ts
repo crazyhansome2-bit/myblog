@@ -15,7 +15,27 @@ const QQ_REFERER_HEADERS = {
   Referer: 'https://y.qq.com/',
 }
 
-const QQ_PLAYLIST_LIMIT = 120
+const QQ_PLAYLIST_SCAN_LIMIT = 600
+const QQ_PLAYLIST_TARGET_COUNT = 120
+const QQ_VKEY_BATCH_SIZE = 80
+
+type QqSinger = {
+  name?: string
+}
+
+type QqSong = {
+  songmid?: string
+  strMediaMid?: string
+  singer?: QqSinger[]
+  albummid?: string
+  songname?: string
+  songorig?: string
+}
+
+type QqVkeyItem = {
+  songmid?: string
+  purl?: string
+}
 
 type SongResult = {
   id: string
@@ -146,77 +166,88 @@ async function getQqPlaylistSongs(playlistId: string): Promise<SongResult[]> {
     throw new Error('QQ playlist response is missing songlist')
   }
 
-  const songs = songList.slice(0, QQ_PLAYLIST_LIMIT)
-  const filenames = songs.map((song: any) => `M500${song.strMediaMid || song.songmid}.mp3`)
-  const songMids = songs.map((song: any) => song.songmid)
+  const songs = (songList as QqSong[])
+    .slice(0, QQ_PLAYLIST_SCAN_LIMIT)
+    .filter((song) => Boolean(song.songmid))
+  const playableSongs: SongResult[] = []
 
-  const vkeyRes = await fetch('https://u.y.qq.com/cgi-bin/musicu.fcg', {
-    method: 'POST',
-    headers: {
-      ...QQ_REFERER_HEADERS,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      req_0: {
-        module: 'vkey.GetVkeyServer',
-        method: 'CgiGetVkey',
-        param: {
-          guid: '10000',
-          songmid: songMids,
-          filename: filenames,
-          songtype: songs.map(() => 0),
-          uin: '0',
-          loginflag: 1,
-          platform: '20',
+  for (let start = 0; start < songs.length && playableSongs.length < QQ_PLAYLIST_TARGET_COUNT; start += QQ_VKEY_BATCH_SIZE) {
+    const chunk = songs.slice(start, start + QQ_VKEY_BATCH_SIZE)
+    const filenames = chunk.map((song) => `M500${song.strMediaMid || song.songmid}.mp3`)
+    const songMids = chunk.map((song) => song.songmid || '')
+
+    const vkeyRes = await fetch('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+      method: 'POST',
+      headers: {
+        ...QQ_REFERER_HEADERS,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        req_0: {
+          module: 'vkey.GetVkeyServer',
+          method: 'CgiGetVkey',
+          param: {
+            guid: '10000',
+            songmid: songMids,
+            filename: filenames,
+            songtype: chunk.map(() => 0),
+            uin: '0',
+            loginflag: 1,
+            platform: '20',
+          },
         },
-      },
-      comm: {
-        uin: '0',
-        format: 'json',
-        ct: 24,
-        cv: 0,
-      },
-    }),
-    signal: AbortSignal.timeout(10000),
-  })
+        comm: {
+          uin: '0',
+          format: 'json',
+          ct: 24,
+          cv: 0,
+        },
+      }),
+      signal: AbortSignal.timeout(10000),
+    })
 
-  if (!vkeyRes.ok) {
-    throw new Error(`QQ vkey request failed: ${vkeyRes.status}`)
+    if (!vkeyRes.ok) {
+      throw new Error(`QQ vkey request failed: ${vkeyRes.status}`)
+    }
+
+    const vkeyData = await vkeyRes.json()
+    const sip = vkeyData?.req_0?.data?.sip?.[0] || 'https://aqqmusic.tc.qq.com/'
+    const baseUrl = String(sip).replace(/^http:\/\//, 'https://')
+    const urlInfo: QqVkeyItem[] = vkeyData?.req_0?.data?.midurlinfo || []
+    const urlByMid = new Map(
+      urlInfo
+        .filter((item) => item?.songmid && item?.purl)
+        .map((item) => [item.songmid, `${baseUrl}${item.purl}`]),
+    )
+
+    const chunkSongs = chunk
+      .map((song, index): SongResult => {
+        const artistName = Array.isArray(song.singer)
+          ? song.singer.map((singer) => singer.name).filter(Boolean).join(' / ')
+          : '未知歌手'
+        const songMid = song.songmid || `${playlistId}-${start + index}`
+        const albumMid = song.albummid || ''
+        const cover = albumMid
+          ? `https://y.qq.com/music/photo_new/T002R300x300M000${albumMid}.jpg`
+          : ''
+
+        return {
+          id: songMid,
+          name: song.songname || song.songorig || '未知歌曲',
+          artist: artistName || '未知歌手',
+          author: artistName || '未知歌手',
+          cover,
+          pic: cover,
+          url: urlByMid.get(songMid) || '',
+          lrcUrl: `/api/music?provider=qq-lyric&songmid=${encodeURIComponent(songMid)}`,
+        }
+      })
+      .filter((song) => Boolean(song.url))
+
+    playableSongs.push(...chunkSongs)
   }
 
-  const vkeyData = await vkeyRes.json()
-  const sip = vkeyData?.req_0?.data?.sip?.[0] || 'https://aqqmusic.tc.qq.com/'
-  const baseUrl = String(sip).replace(/^http:\/\//, 'https://')
-  const urlInfo = vkeyData?.req_0?.data?.midurlinfo || []
-  const urlByMid = new Map(
-    urlInfo
-      .filter((item: any) => item?.songmid && item?.purl)
-      .map((item: any) => [item.songmid, `${baseUrl}${item.purl}`]),
-  )
-
-  return songs
-    .map((song: any, index: number): SongResult => {
-      const artistName = Array.isArray(song.singer)
-        ? song.singer.map((singer: any) => singer.name).filter(Boolean).join(' / ')
-        : '未知歌手'
-      const songMid = song.songmid || `${playlistId}-${index}`
-      const albumMid = song.albummid || ''
-      const cover = albumMid
-        ? `https://y.qq.com/music/photo_new/T002R300x300M000${albumMid}.jpg`
-        : ''
-
-      return {
-        id: songMid,
-        name: song.songname || song.songorig || '未知歌曲',
-        artist: artistName || '未知歌手',
-        author: artistName || '未知歌手',
-        cover,
-        pic: cover,
-        url: (urlByMid.get(songMid) as string) || '',
-        lrcUrl: `/api/music?provider=qq-lyric&songmid=${encodeURIComponent(songMid)}`,
-      }
-    })
-    .filter((song) => Boolean(song.url))
+  return playableSongs.slice(0, QQ_PLAYLIST_TARGET_COUNT)
 }
 
 async function getNeteaseSongs(ids: string): Promise<SongResult[]> {

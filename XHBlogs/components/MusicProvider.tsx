@@ -286,25 +286,23 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   };
 
   const handleAudioError = () => {
-    if (playlist.length <= 1) {
-      setIsPlaying(false);
-      setCurrentLyric("这首歌暂时无法播放");
-      return;
-    }
+    const failedIndex = currentIndex;
+    const nextLength = playlist.length - 1;
 
-    audioErrorStreakRef.current += 1;
     setProgress(0);
     setCurrentTime(0);
 
-    if (audioErrorStreakRef.current >= playlist.length) {
+    if (nextLength <= 0) {
+      setPlaylist([]);
+      setCurrentIndex(0);
       setIsPlaying(false);
       setCurrentLyric("歌单里的歌曲暂时都无法播放");
-      audioErrorStreakRef.current = 0;
       return;
     }
 
-    setCurrentLyric("这首歌暂时无法播放，正在切下一首");
-    setCurrentIndex((prev) => (prev + 1) % playlist.length);
+    setCurrentLyric("已过滤无法播放的歌曲，正在切下一首");
+    setPlaylist((prev) => prev.filter((_, index) => index !== failedIndex));
+    setCurrentIndex(failedIndex >= nextLength ? 0 : failedIndex);
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
