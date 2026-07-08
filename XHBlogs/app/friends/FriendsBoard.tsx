@@ -44,10 +44,10 @@ export default function FriendsBoard() {
         </div>
         <div className="text-center md:text-left w-full px-2 md:px-0">
           <h1 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white mb-2 md:mb-4 tracking-widest drop-shadow-sm uppercase">
-            云端引力
+            星链中继
           </h1>
           <p className="text-xs md:text-base text-slate-600 dark:text-slate-400 font-serif">
-            那些散落在赛博宇宙各处的有趣灵魂与神经节点。
+            接入同频站点，交换彼此的坐标、信号与灵感回路。
           </p>
         </div>
       </div>

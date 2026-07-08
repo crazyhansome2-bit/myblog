@@ -106,6 +106,6 @@ export const siteConfig = {
     maxOutputTokens: 150,
     temperature: 0.85,
   },
-  friendLinkApplyFormat: "名称：linx 的个人网站\n简介：记录作品、文章、项目与生活片段\n链接：https://rogerlinx.com\n头像：https://rogerlinx.com/linx-style/beach-memory.jpg",
+  friendLinkApplyFormat: "名称：linx 的个人网站\n简介：记录作品、文章、项目与生活片段\n链接：https://rogerlinx.com",
   enableLevelSystem: true,
 };
