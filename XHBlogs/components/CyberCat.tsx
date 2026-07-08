@@ -1,241 +1,276 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Fish, MessageCircle, SendHorizontal } from "lucide-react";
+import catSprite from "./siamese-cat.png";
+
+type CatMood = "idle" | "petted" | "thinking";
+
+const idleLines = [
+  "喵呜~ 今天也要好好写代码。",
+  "小鱼干呢？本喵已经等很久了。",
+  "别只看网页，也看看本喵。",
+  "摸摸头可以，别弄乱毛。",
+  "本喵正在巡逻这个网站。",
+];
 
 export default function CyberCat() {
-  const [isPetted, setIsPetted] = useState(false);
+  const [mood, setMood] = useState<CatMood>("idle");
   const [speech, setSpeech] = useState<string | null>(null);
   const [showInput, setShowInput] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
 
-  const chatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const speechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const moodTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // --- 💬 说话功能 ---
-  const speak = (text: string, duration = 6000) => {
+  const speak = (text: string, duration = 5200) => {
     setSpeech(text);
-    if (chatTimeoutRef.current) clearTimeout(chatTimeoutRef.current);
-    chatTimeoutRef.current = setTimeout(() => {
-      setSpeech(null);
-    }, duration);
+    if (speechTimerRef.current) clearTimeout(speechTimerRef.current);
+    speechTimerRef.current = setTimeout(() => setSpeech(null), duration);
   };
 
-  // --- 🖱️ 交互事件：摸猫猫 ---
+  const setTemporaryMood = (nextMood: CatMood, duration = 1600) => {
+    setMood(nextMood);
+    if (moodTimerRef.current) clearTimeout(moodTimerRef.current);
+    moodTimerRef.current = setTimeout(() => setMood("idle"), duration);
+  };
+
   const handlePetCat = () => {
-    if (isPetted) return;
-    setIsPetted(true);
-    speak("呼噜噜... 摸得本喵很舒服喵~", 2000);
-    setTimeout(() => {
-      setIsPetted(false);
-    }, 2000);
+    if (isThinking) return;
+    setTemporaryMood("petted");
+    speak("呼噜呼噜... 摸得还不错喵~", 2600);
   };
 
-  // --- 🐟 交互事件：喂小鱼干 ---
-  const handleFeed = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // 阻止触发摸猫或拖拽
+  const handleFeed = async (event: React.MouseEvent) => {
+    event.stopPropagation();
     if (isThinking) return;
 
-    setShowInput(false); // 喂食时关掉输入框
+    setShowInput(false);
     setIsThinking(true);
-    speak("嗷呜！真好吃喵！本喵吃饱了要说两句...", 6000);
+    setMood("thinking");
+    speak("收到小鱼干，本喵思考一下怎么夸你。", 6500);
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: "我刚刚喂了你一条美味的小鱼干！你有什么表示？" }),
       });
 
-      if (!res.ok) throw new Error('API Error');
+      if (!response.ok) throw new Error("Chat API failed");
 
-      const data = await res.json();
-      speak(data.reply, 8000);
-    } catch (error) {
-      speak("吧唧吧唧... 鱼干好吃，但本喵卡壳了喵...", 4000);
+      const data = await response.json();
+      speak(data.reply || "小鱼干不错，本喵认可你了喵~", 8000);
+    } catch {
+      speak("小鱼干很好吃，但本喵的信号有点卡喵。", 4200);
     } finally {
       setIsThinking(false);
+      setMood("idle");
     }
   };
 
-  // --- 💬 交互事件：发送聊天 ---
-  const handleChatSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isThinking) return;
+  const handleChatSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const message = inputValue.trim();
+    if (!message || isThinking) return;
 
-    const userMessage = inputValue;
-    setInputValue('');
+    setInputValue("");
     setShowInput(false);
     setIsThinking(true);
-    speak("让本喵想想喵...", 10000);
+    setMood("thinking");
+    speak("让本喵想想。", 9000);
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage }),
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
       });
 
-      if (!res.ok) throw new Error('API Error');
+      if (!response.ok) throw new Error("Chat API failed");
 
-      const data = await res.json();
-      speak(data.reply, 8000);
-    } catch (error) {
-      speak("铲屎官的网线被老鼠咬断了吧？喵！", 4000);
+      const data = await response.json();
+      speak(data.reply || "本喵听到了。", 8000);
+    } catch {
+      speak("网络好像打结了，晚点再来找本喵。", 4200);
     } finally {
       setIsThinking(false);
+      setMood("idle");
     }
   };
 
-  // --- ⏳ 随机挂机语录 ---
   useEffect(() => {
-    const randomBarks = [
-      "喵呜~ 今天天气真不错喵~",
-      "好困哦，想睡觉喵...",
-      "铲屎官，快去敲代码！",
-      "我的小鱼干藏哪里去了？",
-      "怎么没人理本喵...",
-    ];
-    const randomTalkInterval = setInterval(() => {
-      if (!speech && !showInput && !isThinking && Math.random() > 0.8) {
-        const randomMsg = randomBarks[Math.floor(Math.random() * randomBarks.length)];
-        speak(randomMsg, 4000);
+    const interval = setInterval(() => {
+      if (!speech && !showInput && !isThinking && Math.random() > 0.82) {
+        speak(idleLines[Math.floor(Math.random() * idleLines.length)], 4200);
       }
-    }, 20000);
+    }, 18000);
 
-    return () => clearInterval(randomTalkInterval);
+    return () => {
+      clearInterval(interval);
+      if (speechTimerRef.current) clearTimeout(speechTimerRef.current);
+      if (moodTimerRef.current) clearTimeout(moodTimerRef.current);
+    };
   }, [speech, showInput, isThinking]);
-
 
   return (
     <motion.div
       drag
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-      dragElastic={0.1}
-      whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-      className="fixed bottom-20 right-20 z-[9999] flex flex-col items-center group cursor-grab active:cursor-grabbing"
+      dragElastic={0.08}
+      dragMomentum={false}
+      whileDrag={{ scale: 1.04, cursor: "grabbing" }}
+      className="fixed bottom-24 right-14 z-[9998] flex flex-col items-center cursor-grab active:cursor-grabbing"
     >
-      {/* 💬 聊天气泡 */}
-      <div className="relative w-full flex justify-center mb-6">
-        <AnimatePresence>
-          {speech && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="absolute bottom-0 bg-white dark:bg-slate-800 text-slate-700 dark:text-gray-200 px-4 py-3 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 text-sm max-w-[240px] break-words text-center leading-relaxed"
-              style={{ pointerEvents: 'none', transformOrigin: 'bottom center' }}
-            >
-              {speech}
-              <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-800 border-b border-r border-gray-100 dark:border-slate-700 transform rotate-45"></div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <AnimatePresence>
+        {speech && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+            className="mb-3 max-w-[230px] rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-center text-sm font-bold leading-relaxed text-slate-700 shadow-2xl shadow-slate-900/15 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100"
+            style={{ pointerEvents: "none" }}
+          >
+            {speech}
+            <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-white/70 bg-white/90 dark:border-white/10 dark:bg-slate-900/90" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* 🐈 猫咪本体 & 交互按钮区 */}
-      <div className="relative">
+      <div className="relative flex items-center">
+        <div className="absolute -left-11 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2 rounded-full border border-white/45 bg-slate-900/20 p-1.5 shadow-xl shadow-slate-900/20 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/45">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setShowInput((value) => !value);
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-900/20 transition hover:scale-105 hover:bg-sky-400 active:scale-95"
+            title="和煤球聊天"
+            aria-label="和煤球聊天"
+          >
+            <MessageCircle size={18} fill="currentColor" strokeWidth={2.2} />
+          </button>
 
-        {/* 🌟 核心修改区：去掉了 opacity-0 和 group-hover，让按钮常驻显示 */}
-        <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20">
-
-            {/* 💬 聊天按钮 */}
-            <button
-              onClick={(e) => {
-                 e.stopPropagation();
-                 setShowInput(!showInput);
-              }}
-              // 稍微加了一点半透明背景，让常驻按钮在深色背景下也好看
-              className="bg-white/90 dark:bg-slate-700/90 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-transform border border-gray-100 dark:border-slate-600 text-blue-500 hover:text-blue-600 flex items-center justify-center backdrop-blur-sm"
-              title="聊天"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
-              </svg>
-            </button>
-
-            {/* 🐟 喂食按钮 */}
-            <button
-              onClick={handleFeed}
-              disabled={isThinking}
-              className={`bg-white/90 dark:bg-slate-700/90 p-2.5 rounded-full shadow-md hover:scale-110 active:scale-95 transition-transform border border-gray-100 dark:border-slate-600 flex items-center justify-center backdrop-blur-sm ${isThinking ? 'opacity-50 cursor-not-allowed' : ''}`}
-              title="喂小鱼干"
-            >
-              <span className="text-xl leading-none">🐟</span>
-            </button>
+          <button
+            type="button"
+            onClick={handleFeed}
+            onPointerDown={(event) => event.stopPropagation()}
+            disabled={isThinking}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-900/20 transition hover:scale-105 hover:bg-cyan-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-55"
+            title="喂小鱼干"
+            aria-label="喂小鱼干"
+          >
+            <Fish size={18} strokeWidth={2.5} />
+          </button>
         </div>
 
-        {/* 猫咪图片容器 */}
-        <div
-          className="w-[120px] h-[120px] relative cursor-pointer"
+        <button
+          type="button"
           onClick={handlePetCat}
+          onPointerDown={(event) => event.stopPropagation()}
+          className="cat-shell relative h-[126px] w-[144px] cursor-pointer overflow-visible rounded-[28px] border border-white/45 bg-white/25 shadow-2xl shadow-slate-950/20 backdrop-blur-md transition hover:scale-[1.02] active:scale-95 dark:border-white/10 dark:bg-slate-900/25"
+          aria-label="摸摸煤球"
         >
-          <style>{`
-            .cat-sprite {
-              width: 100%;
-              height: 100%;
-              background-image: url('/linx-style/crossing-sea.jpg'); 
-              background-size: cover; 
-              background-position: center;
-              background-repeat: no-repeat;
-              border-radius: 28px;
-              box-shadow: 0 18px 45px rgba(8, 20, 36, 0.35);
-            }
-            .cat-idle {
-              animation: idle-frames 3s ease-in-out infinite;
-            }
-            .cat-petted {
-              animation: pet-frames 0.8s ease-in-out infinite;
-            }
-            .cat-thinking {
-              animation: idle-frames 1.5s ease-in-out infinite;
-            }
-            @keyframes idle-frames {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-4px); }
-            }
-            @keyframes pet-frames {
-              0%, 100% { transform: scale(1); }
-              50% { transform: scale(1.04); }
-            }
-          `}</style>
-          <div className={`cat-sprite drop-shadow-2xl ${isPetted ? 'cat-petted' : isThinking ? 'cat-thinking' : 'cat-idle'}`} />
-        </div>
+          <span className="absolute inset-x-5 bottom-2 h-5 rounded-full bg-slate-900/25 blur-xl" />
+          <span className={`cat-sprite ${mood === "petted" ? "cat-petted" : mood === "thinking" ? "cat-thinking" : "cat-idle"}`} />
+        </button>
       </div>
 
-      {/* ⌨️ 互动输入框 */}
       <AnimatePresence>
         {showInput && (
           <motion.form
-            initial={{ opacity: 0, y: -10, scale: 0.9 }}
+            initial={{ opacity: 0, y: -8, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            exit={{ opacity: 0, y: -8, scale: 0.94 }}
             onSubmit={handleChatSubmit}
-            className="absolute -bottom-14 bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-lg flex items-center border border-gray-200 dark:border-slate-700 w-56 z-20"
+            onPointerDown={(event) => event.stopPropagation()}
+            className="absolute -bottom-14 flex w-64 items-center rounded-full border border-white/60 bg-white/90 p-1.5 shadow-2xl shadow-slate-900/15 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90"
           >
             <input
               type="text"
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="跟煤球说点啥喵..."
-              className="bg-transparent border-none outline-none text-sm px-3 py-1 w-full dark:text-white placeholder-gray-400"
+              onChange={(event) => setInputValue(event.target.value)}
+              placeholder="跟煤球说点什么..."
+              className="w-full bg-transparent px-3 py-1.5 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 dark:text-white"
               disabled={isThinking}
               autoFocus
             />
             <button
               type="submit"
               disabled={isThinking || !inputValue.trim()}
-              className={`rounded-full p-1.5 ml-1 flex items-center justify-center transition-colors ${
-                isThinking || !inputValue.trim() ? 'bg-gray-300 text-gray-500' : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              aria-label="发送"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                <path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
-              </svg>
+              <SendHorizontal size={16} />
             </button>
           </motion.form>
         )}
       </AnimatePresence>
+
+      <style jsx>{`
+        .cat-sprite {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 144px;
+          height: 128px;
+          transform: translate(-50%, -50%);
+          background-image: url(${catSprite.src});
+          background-size: 675px 675px;
+          background-repeat: no-repeat;
+          background-position: -63px -42px;
+          image-rendering: pixelated;
+          filter: drop-shadow(0 14px 18px rgba(15, 23, 42, 0.22));
+        }
+
+        .cat-idle {
+          animation: cat-idle 3.2s ease-in-out infinite;
+        }
+
+        .cat-petted {
+          background-position: -63px -274px;
+          animation: cat-petted 0.55s ease-in-out infinite;
+        }
+
+        .cat-thinking {
+          background-position: -288px -49px;
+          animation: cat-thinking 1.1s ease-in-out infinite;
+        }
+
+        @keyframes cat-idle {
+          0%,
+          100% {
+            transform: translate(-50%, -50%);
+          }
+          50% {
+            transform: translate(-50%, calc(-50% - 5px));
+          }
+        }
+
+        @keyframes cat-petted {
+          0%,
+          100% {
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(1.04);
+          }
+        }
+
+        @keyframes cat-thinking {
+          0%,
+          100% {
+            transform: translate(-50%, -50%) rotate(-1deg);
+          }
+          50% {
+            transform: translate(-50%, -50%) rotate(1deg);
+          }
+        }
+      `}</style>
     </motion.div>
   );
 }

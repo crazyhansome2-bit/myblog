@@ -142,11 +142,15 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       }
     } else if (currentSong.lrcUrl) {
       fetch(currentSong.lrcUrl)
-        .then(res => res.text())
+        .then(res => {
+          if (!res.ok) throw new Error(`Lyric request failed: ${res.status}`);
+          return res.text();
+        })
         .then(text => {
           if (isMounted) {
              const parsed = parseLrc(text);
              setLyrics(parsed);
+             setCurrentLyric(parsed[0]?.text || "\u266a \u7eaf\u4eab\u97f3\u4e50 \u266a");
              setPlaylist(prev => {
                 const newPlaylist = [...prev];
                 newPlaylist[currentIndex].lyrics = parsed;
@@ -155,6 +159,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
           }
         })
         .catch(() => { if (isMounted) setCurrentLyric("\u266a \u7eaf\u4eab\u97f3\u4e50 \u266a"); });
+    } else {
+      setCurrentLyric("\u266a \u7eaf\u4eab\u97f3\u4e50 \u266a");
     }
 
     if (isPlaying && audioRef.current) {

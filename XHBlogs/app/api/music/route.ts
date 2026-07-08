@@ -72,6 +72,63 @@ async function resolveQqPlaylistId(playlistId: string, playlistUrl: string | nul
   return extractQqPlaylistId(currentUrl)
 }
 
+function decodeQqLyricText(value: unknown) {
+  if (!value) return ''
+
+  let text = String(value)
+
+  if (!text.includes('[')) {
+    try {
+      const decoded = Buffer.from(text, 'base64').toString('utf8')
+      if (decoded.includes('[') || decoded.includes('\n')) text = decoded
+    } catch {
+      /* QQ can return either plain text or base64 depending on endpoint behavior. */
+    }
+  }
+
+  return text
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+}
+
+async function getQqLyric(songMid: string) {
+  const apiUrl = new URL('https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg')
+  apiUrl.search = new URLSearchParams({
+    songmid: songMid,
+    format: 'json',
+    nobase64: '1',
+    g_tk: '5381',
+    loginUin: '0',
+    hostUin: '0',
+    inCharset: 'utf8',
+    outCharset: 'utf-8',
+    notice: '0',
+    platform: 'yqq.json',
+    needNewCode: '0',
+  }).toString()
+
+  const res = await fetch(apiUrl, {
+    headers: QQ_REFERER_HEADERS,
+    signal: AbortSignal.timeout(8000),
+  })
+
+  if (!res.ok) {
+    throw new Error(`QQ lyric request failed: ${res.status}`)
+  }
+
+  const rawText = await res.text()
+  const jsonText = rawText.trim().replace(/^[^(]*\(/, '').replace(/\)\s*$/, '')
+  const data = JSON.parse(jsonText)
+  const lyric = decodeQqLyricText(data?.lyric)
+  const translation = decodeQqLyricText(data?.trans)
+
+  return [lyric, translation].filter(Boolean).join('\n')
+}
+
 async function getQqPlaylistSongs(playlistId: string): Promise<SongResult[]> {
   const apiUrl = `https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&disstid=${playlistId}&format=json&g_tk=5381&loginUin=0&hostUin=0&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0`
   const res = await fetch(apiUrl, {
@@ -156,7 +213,7 @@ async function getQqPlaylistSongs(playlistId: string): Promise<SongResult[]> {
         cover,
         pic: cover,
         url: (urlByMid.get(songMid) as string) || '',
-        lrcUrl: `https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${songMid}&format=json&nobase64=1&g_tk=5381`,
+        lrcUrl: `/api/music?provider=qq-lyric&songmid=${encodeURIComponent(songMid)}`,
       }
     })
     .filter((song) => Boolean(song.url))
@@ -220,6 +277,21 @@ export async function GET(request: NextRequest) {
   const provider = request.nextUrl.searchParams.get('provider')
 
   try {
+    if (provider === 'qq-lyric') {
+      const songMid = request.nextUrl.searchParams.get('songmid') || ''
+      if (!songMid) {
+        return NextResponse.json({ error: 'Missing QQ songmid' }, { status: 400 })
+      }
+
+      const lyric = await getQqLyric(songMid)
+      return new NextResponse(lyric, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+        },
+      })
+    }
+
     if (provider === 'qq') {
       const playlistId = await resolveQqPlaylistId(
         request.nextUrl.searchParams.get('playlistId') || '',
