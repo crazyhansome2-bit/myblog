@@ -236,6 +236,7 @@ export default function StudioClient() {
         </div>
         <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
           <span>{username}</span>
+          <a href="/studio/photos" className="border border-cyan-200/40 px-3 py-1.5 text-xs font-bold text-cyan-700 hover:bg-cyan-300/10 dark:text-cyan-100">相册管理</a>
           <a href="/api/admin/logout" title="退出登录" className="inline-flex h-9 w-9 items-center justify-center border border-slate-300 bg-white/60 text-slate-600 hover:text-rose-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"><LogOut size={16} /></a>
         </div>
       </div>
