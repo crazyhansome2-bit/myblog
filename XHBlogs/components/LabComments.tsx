@@ -1,105 +1,89 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
-import 'gitalk/dist/gitalk.css';
-import Gitalk from 'gitalk';
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import Gitalk from "gitalk";
+import "gitalk/dist/gitalk.css";
+import { siteConfig } from "../siteConfig";
 
-import { siteConfig } from '../siteConfig';
-
-// 🌟 专门为炼金实验室定制的 Gitalk 组件，不影响原有的 Comments.tsx
 export default function LabComments({ pageId }: { pageId?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const hasGitalkConfig = Boolean(
+    siteConfig.gitalkConfig.clientID &&
+    siteConfig.gitalkConfig.repo &&
+    siteConfig.gitalkConfig.owner &&
+    siteConfig.gitalkConfig.admin?.some(Boolean),
+  );
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!hasGitalkConfig || !containerRef.current) return;
+    let cancelled = false;
+    const id = (pageId || pathname.replace(/\/$/, "") || "/").substring(0, 49);
+    const initKey = `linx:gitalk:init:${id}`;
 
-    // 清空之前的评论区，防止切换月份时叠加
-    containerRef.current.innerHTML = '';
+    const mount = () => {
+      if (cancelled || !containerRef.current) return;
+      containerRef.current.innerHTML = "";
+      new Gitalk({
+        clientID: siteConfig.gitalkConfig.clientID,
+        clientSecret: siteConfig.gitalkConfig.clientSecret,
+        repo: siteConfig.gitalkConfig.repo,
+        owner: siteConfig.gitalkConfig.owner,
+        admin: siteConfig.gitalkConfig.admin,
+        proxy: "/api/github",
+        id,
+        distractionFreeMode: false,
+        createIssueManually: false,
+      }).render(containerRef.current);
+    };
 
-    // 优先使用传入的 pageId (如 workshop-2026-05)
-    const finalId = (pageId || pathname.replace(/\/$/, '') || '/').substring(0, 49);
+    const initialize = async () => {
+      if (window.localStorage.getItem(initKey)) return false;
+      const response = await fetch("/api/gitalk-init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: "/tree", id }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.ok) return false;
+      window.localStorage.setItem(initKey, "1");
+      return Boolean(data.created);
+    };
 
-    const gitalk = new Gitalk({
-      clientID: siteConfig.gitalkConfig.clientID,
-      clientSecret: siteConfig.gitalkConfig.clientSecret,
-      repo: siteConfig.gitalkConfig.repo,
-      owner: siteConfig.gitalkConfig.owner,
-      admin: siteConfig.gitalkConfig.admin,
-      proxy: '/api/github',
-      id: finalId, // 这里的 ID 决定了留言板对应 GitHub 的哪个 Issue
-      distractionFreeMode: false,
-    });
+    mount();
+    initialize().then((created) => {
+      if (created && !cancelled) mount();
+    }).catch(() => undefined);
 
-    gitalk.render(containerRef.current);
-
-    // 擦除 URL 中的 OAuth 凭证，防止刷新报错
     const url = new URL(window.location.href);
-    if (url.searchParams.has('code')) {
-      url.searchParams.delete('code');
+    if (url.searchParams.has("code")) {
+      url.searchParams.delete("code");
       window.history.replaceState({}, document.title, url.toString());
     }
+    return () => { cancelled = true; };
+  }, [pathname, pageId, hasGitalkConfig]);
 
-  }, [pathname, pageId]);
+  if (!hasGitalkConfig) return null;
 
   return (
-    <div className="w-full mt-16 relative">
-      <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 blur-3xl rounded-full pointer-events-none z-0"></div>
-      <div ref={containerRef} className="relative z-10 custom-gitalk-glass pt-6 border-t border-slate-200/50 dark:border-slate-700/50" />
-
-      {/* 🌟 保留你原来的毛玻璃样式 */}
+    <section className="tree-gitalk relative mt-16 w-full">
+      <div className="relative border-t border-slate-200/50 pt-7 dark:border-slate-700/50">
+        <div className="mb-6 text-center"><h4 className="text-xl font-black tracking-[0.22em] text-slate-900 md:text-2xl dark:text-white">星港回响</h4></div>
+        <div ref={containerRef} />
+      </div>
       <style jsx global>{`
-        .custom-gitalk-glass .gt-container .gt-header-textarea {
-          background: rgba(255, 255, 255, 0.1) !important;
-          backdrop-filter: blur(12px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.2) !important;
-          border-radius: 16px !important;
-          color: inherit !important;
-          transition: all 0.3s ease;
-        }
-        .custom-gitalk-glass .gt-container .gt-header-textarea:focus {
-          background: rgba(255, 255, 255, 0.2) !important;
-          border-color: #6366f1 !important;
-          box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-header-preview {
-          background: rgba(255, 255, 255, 0.1) !important;
-          backdrop-filter: blur(12px) !important;
-          border-radius: 16px !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-btn {
-          background: #6366f1 !important;
-          border: none !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4) !important;
-          transition: transform 0.2s, box-shadow 0.2s;
-          color: white !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6) !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-comment-content {
-          background: rgba(255, 255, 255, 0.05) !important;
-          backdrop-filter: blur(8px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          border-radius: 16px !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-comment-admin .gt-comment-content {
-          border-color: rgba(99, 102, 241, 0.3) !important;
-        }
-        .custom-gitalk-glass .gt-container .gt-avatar {
-          border-radius: 50% !important;
-          overflow: hidden;
-        }
-        .custom-gitalk-glass .gt-container .gt-comment-body {
-          color: inherit !important;
-        }
-        .custom-gitalk-glass .gt-container a {
-          color: #6366f1 !important;
-        }
+        .tree-gitalk .gt-container { color: inherit !important; font-family: inherit !important; }
+        .tree-gitalk .gt-container .gt-meta { border-bottom-color: rgba(148,163,184,.45) !important; }
+        .tree-gitalk .gt-container .gt-counts, .tree-gitalk .gt-container .gt-user .gt-ico-text { color: #e0f2fe !important; }
+        .tree-gitalk .gt-container .gt-header-textarea { min-height: 88px !important; border: 1px solid rgba(125,211,252,.22) !important; border-radius: 12px !important; background: rgba(15,23,42,.42) !important; color: #e0f2fe !important; }
+        .tree-gitalk .gt-container .gt-header-textarea:focus { border-color: #7dd3fc !important; background: rgba(15,23,42,.58) !important; box-shadow: 0 0 18px rgba(14,165,233,.28) !important; }
+        .tree-gitalk .gt-container .gt-btn { border: none !important; border-radius: 8px !important; background: #4f7fa4 !important; color: white !important; box-shadow: 0 8px 22px rgba(79,127,164,.28) !important; }
+        .tree-gitalk .gt-container .gt-comment-content { border: 1px solid rgba(125,211,252,.16) !important; border-radius: 12px !important; background: rgba(15,23,42,.36) !important; }
+        .tree-gitalk .gt-container .gt-comment-body, .tree-gitalk .gt-container .gt-header-preview { color: #e2e8f0 !important; }
+        .tree-gitalk .gt-container .gt-avatar { overflow: hidden; border-radius: 999px !important; }
+        .tree-gitalk .gt-container a { color: #7dd3fc !important; }
       `}</style>
-    </div>
+    </section>
   );
 }

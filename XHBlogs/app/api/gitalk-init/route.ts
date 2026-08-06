@@ -42,9 +42,9 @@ function issueId(path: string) {
   return path.substring(0, 49);
 }
 
-function issueTitle(path: string) {
+function issueTitle(path: string, id: string) {
   if (path === "/") return "rogerlinx.com";
-  return `rogerlinx.com${path}`;
+  return `rogerlinx.com${path} · ${id}`;
 }
 
 function headers(token: string) {
@@ -107,7 +107,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Path is not allowed." }, { status: 400 });
     }
 
-    const id = issueId(path);
+    const customId = typeof payload.id === "string" && /^workshop-\d{4}-\d{2}$/.test(payload.id) ? payload.id : "";
+    const id = customId || issueId(path);
     const cached = cacheStore.__linxGitalkInitCache?.get(id);
 
     if (cached && cached.expiresAt > Date.now()) {
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
     const issue = await githubFetch<{ number: number }>(`/repos/${OWNER}/${REPO}/issues`, token, {
       method: "POST",
       body: JSON.stringify({
-        title: issueTitle(path),
+        title: issueTitle(path, id),
         body: `Comment channel for https://rogerlinx.com${path}\n\nInitialized automatically by rogerlinx.com.`,
         labels,
       }),
