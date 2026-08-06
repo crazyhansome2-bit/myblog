@@ -68,6 +68,7 @@ export default function StudioClient() {
   const [mode, setMode] = useState<"create" | "update">("create");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const itemLabel = useMemo(() => labels[type], [type]);
 
@@ -97,6 +98,15 @@ export default function StudioClient() {
   }, []);
 
   useEffect(() => { void checkSession(); }, [checkSession]);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("login") !== "success") return;
+    setShowWelcome(true);
+    url.searchParams.delete("login");
+    window.history.replaceState({}, document.title, url.toString());
+    const timer = window.setTimeout(() => setShowWelcome(false), 4500);
+    return () => window.clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (authenticated) void loadItems(type);
   }, [authenticated, loadItems, type]);
@@ -183,14 +193,22 @@ export default function StudioClient() {
 
   if (!authenticated) {
     return (
-      <main className="mx-auto flex min-h-[70vh] w-[90%] max-w-xl items-center justify-center pt-24">
-        <section className="w-full border border-white/50 bg-white/60 p-8 text-center shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70">
-          <Pencil className="mx-auto mb-5 text-indigo-600 dark:text-sky-300" size={34} />
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white">我的编辑台</h1>
-          <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">登录指定的 GitHub 账号后，可以直接发布、修改和删除网站内容。</p>
-          <a href="/api/admin/login" className="mt-7 inline-flex items-center gap-2 bg-indigo-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700 dark:bg-sky-500 dark:hover:bg-sky-400">
-            <LogIn size={16} /> 使用 GitHub 登录
+      <main className="mx-auto flex min-h-[78vh] w-[92%] max-w-2xl items-center justify-center pt-24">
+        <section className="system-panel relative w-full overflow-hidden border border-cyan-200/35 bg-[#091b27]/90 p-8 text-center shadow-[0_24px_80px_rgba(0,12,24,.45)] backdrop-blur-xl md:p-12">
+          <div className="pointer-events-none absolute inset-3 border border-cyan-200/10" />
+          <div className="pointer-events-none absolute left-0 top-0 h-px w-2/5 bg-cyan-300/75" />
+          <div className="pointer-events-none absolute bottom-0 right-0 h-px w-2/5 bg-amber-200/75" />
+          <div className="relative mx-auto mb-7 flex h-16 w-16 items-center justify-center border border-cyan-200/50 bg-cyan-300/10 text-cyan-200 shadow-[0_0_35px_rgba(103,232,249,.2)]">
+            <Pencil size={30} strokeWidth={1.4} />
+          </div>
+          <p className="relative text-[10px] font-bold tracking-[0.35em] text-cyan-200/70">LINX // PERSONAL TERMINAL</p>
+          <h1 className="relative mt-4 text-3xl font-black tracking-[0.12em] text-white md:text-4xl">系统认证</h1>
+          <p className="relative mt-4 text-sm leading-7 text-slate-300">漂泊者身份校验节点</p>
+          <p className="relative mt-1 text-xs tracking-wider text-slate-400">仅接受已授权的 GitHub 账号</p>
+          <a href="/api/admin/login" className="relative mt-8 inline-flex items-center gap-3 border border-cyan-200/60 bg-cyan-300/15 px-6 py-3 text-sm font-bold tracking-wider text-cyan-100 transition-all hover:bg-cyan-300/25 hover:shadow-[0_0_28px_rgba(103,232,249,.2)]">
+            <LogIn size={16} /> 开始身份认证
           </a>
+          <div className="relative mt-7 flex items-center justify-center gap-2 text-[10px] tracking-widest text-amber-100/65"><span className="h-1.5 w-1.5 bg-amber-200" /> CONNECTION STANDBY</div>
         </section>
       </main>
     );
@@ -198,11 +216,24 @@ export default function StudioClient() {
 
   const Icon = icons[type];
   return (
-    <main className="mx-auto w-[94%] max-w-7xl pt-24 md:pt-28">
+    <>
+      {showWelcome && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#04111a]/45 px-5 backdrop-blur-sm">
+          <div className="system-panel relative w-full max-w-md overflow-hidden border border-cyan-200/45 bg-[#091b27]/95 px-7 py-10 text-center shadow-[0_24px_90px_rgba(0,12,24,.6)]">
+            <div className="pointer-events-none absolute inset-3 border border-cyan-200/10" />
+            <div className="relative mx-auto mb-5 flex h-12 w-12 items-center justify-center border border-amber-200/70 text-amber-100"><span className="text-xl">✓</span></div>
+            <p className="relative text-[10px] font-bold tracking-[0.32em] text-cyan-200/70">IDENTITY VERIFIED</p>
+            <h2 className="relative mt-4 text-2xl font-black tracking-wider text-white">认证成功</h2>
+            <p className="relative mt-3 text-base font-bold tracking-wider text-cyan-100">欢迎漂泊者回家</p>
+            <p className="relative mt-5 text-xs leading-6 text-slate-400">终端权限已确认，内容节点现已开放。</p>
+          </div>
+        </div>
+      )}
+      <main className="mx-auto w-[94%] max-w-7xl pt-24 md:pt-28">
       <div className="mb-6 flex flex-col justify-between gap-4 border-b border-slate-300/70 pb-5 dark:border-slate-700 md:flex-row md:items-end">
         <div>
-          <p className="text-xs font-bold text-indigo-600 dark:text-sky-300">CONTENT CONSOLE</p>
-          <h1 className="mt-1 text-3xl font-black text-slate-900 dark:text-white">我的编辑台</h1>
+          <p className="text-xs font-bold tracking-[0.28em] text-cyan-700 dark:text-cyan-200">SYSTEM AUTHENTICATION // CONTENT NODE</p>
+          <h1 className="mt-1 text-3xl font-black tracking-wider text-slate-900 dark:text-white">系统认证</h1>
         </div>
         <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
           <span>{username}</span>
@@ -211,7 +242,7 @@ export default function StudioClient() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
-        <aside className="border border-white/60 bg-white/50 p-3 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/60">
+        <aside className="system-panel border border-cyan-800/20 bg-[#0b1d29]/90 p-3 shadow-lg backdrop-blur-xl dark:border-cyan-200/15 dark:bg-[#091b27]/90">
           <div className="grid grid-cols-3 gap-1 lg:grid-cols-1">
             {(Object.keys(labels) as ContentType[]).map((entryType) => {
               const EntryIcon = icons[entryType];
@@ -227,7 +258,7 @@ export default function StudioClient() {
           </div>
         </aside>
 
-        <section className="border border-white/60 bg-white/60 p-4 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/65 md:p-7">
+        <section className="system-panel border border-cyan-800/20 bg-white/65 p-4 shadow-lg backdrop-blur-xl dark:border-cyan-200/15 dark:bg-[#091b27]/90 md:p-7">
           <div className="mb-5 flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-700">
             <div className="flex items-center gap-2 text-lg font-black text-slate-900 dark:text-white"><Icon size={19} className="text-indigo-600 dark:text-sky-300" />{mode === "create" ? `新建${itemLabel}` : `编辑${itemLabel}`}</div>
             <span className="text-xs text-slate-400">Markdown</span>
@@ -257,8 +288,9 @@ export default function StudioClient() {
           </div>
         </section>
       </div>
-      <style jsx>{`.studio-input { width: 100%; border: 1px solid rgba(148,163,184,.55); background: rgba(255,255,255,.7); padding: .65rem .75rem; color: #1e293b; outline: none; } .studio-input:focus { border-color: #4f7fa4; box-shadow: 0 0 0 2px rgba(79,127,164,.16); } :global(.dark) .studio-input { border-color: rgba(148,163,184,.35); background: rgba(15,23,42,.65); color: #e2e8f0; }`}</style>
-    </main>
+      <style jsx>{`.system-panel { clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); } .studio-input { width: 100%; border: 1px solid rgba(79,127,164,.5); background: rgba(240,248,250,.7); padding: .65rem .75rem; color: #102a3a; outline: none; } .studio-input:focus { border-color: #67e8f9; box-shadow: 0 0 0 2px rgba(103,232,249,.16); } :global(.dark) .studio-input { border-color: rgba(125,211,252,.3); background: rgba(4,17,26,.72); color: #e2e8f0; }`}</style>
+      </main>
+    </>
   );
 }
 

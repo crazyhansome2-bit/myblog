@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/studio?error=forbidden", origin));
     }
 
-    const response = NextResponse.redirect(new URL("/studio", origin));
+    const response = NextResponse.redirect(new URL("/studio?login=success", origin));
     response.cookies.set(ADMIN_SESSION_COOKIE, createAdminSession(profile.login), { ...adminCookieOptions, maxAge: 60 * 60 * 8 });
     response.cookies.set(ADMIN_STATE_COOKIE, "", { ...adminCookieOptions, maxAge: 0 });
     return response;

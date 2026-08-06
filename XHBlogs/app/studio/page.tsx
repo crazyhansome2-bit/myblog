@@ -3,7 +3,7 @@ import PageTransition from "@/components/PageTransition";
 import StudioClient from "./StudioClient";
 
 export const metadata = {
-  title: "编辑台 | Linx",
+  title: "系统认证 | Linx",
   robots: { index: false, follow: false },
 };
 
