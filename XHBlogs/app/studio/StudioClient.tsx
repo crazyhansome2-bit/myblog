@@ -223,8 +223,7 @@ export default function StudioClient() {
             <div className="pointer-events-none absolute inset-3 border border-cyan-200/10" />
             <div className="relative mx-auto mb-5 flex h-12 w-12 items-center justify-center border border-amber-200/70 text-amber-100"><span className="text-xl">✓</span></div>
             <p className="relative text-[10px] font-bold tracking-[0.32em] text-cyan-200/70">IDENTITY VERIFIED</p>
-            <h2 className="relative mt-4 text-2xl font-black tracking-wider text-white">认证成功</h2>
-            <p className="relative mt-3 text-base font-bold tracking-wider text-cyan-100">欢迎漂泊者回家</p>
+            <h2 className="relative mt-4 text-xl font-black leading-relaxed tracking-wider text-white md:text-2xl">认证成功，黑海岸终端等待你的下一条记录</h2>
             <p className="relative mt-5 text-xs leading-6 text-slate-400">终端权限已确认，内容节点现已开放。</p>
           </div>
         </div>
