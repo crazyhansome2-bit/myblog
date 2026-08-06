@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 export const ADMIN_SESSION_COOKIE = "linx_admin_session";
 export const ADMIN_STATE_COOKIE = "linx_admin_oauth_state";
+export const ADMIN_WELCOME_COOKIE = "linx_admin_welcome";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 type AdminSession = {

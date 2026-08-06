@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_SESSION_COOKIE, ADMIN_STATE_COOKIE, adminCookieOptions, createAdminSession, getAdminConfig, getCookie, verifyOAuthState } from "@/lib/admin";
+import { ADMIN_SESSION_COOKIE, ADMIN_STATE_COOKIE, ADMIN_WELCOME_COOKIE, adminCookieOptions, createAdminSession, getAdminConfig, getCookie, verifyOAuthState } from "@/lib/admin";
 
 export const runtime = "nodejs";
 
@@ -38,8 +38,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/studio?error=forbidden", origin));
     }
 
-    const response = NextResponse.redirect(new URL("/studio?login=success", origin));
+    const response = NextResponse.redirect(new URL("/studio", origin));
     response.cookies.set(ADMIN_SESSION_COOKIE, createAdminSession(profile.login), { ...adminCookieOptions, maxAge: 60 * 60 * 8 });
+    response.cookies.set(ADMIN_WELCOME_COOKIE, "1", { ...adminCookieOptions, maxAge: 120 });
     response.cookies.set(ADMIN_STATE_COOKIE, "", { ...adminCookieOptions, maxAge: 0 });
     return response;
   } catch (error) {

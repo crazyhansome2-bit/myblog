@@ -81,6 +81,7 @@ export default function StudioClient() {
     const data = await response.json();
     setAuthenticated(Boolean(data.authenticated));
     setUsername(data.username || "");
+    setShowWelcome(Boolean(data.showWelcome));
   }, []);
 
   const loadItems = useCallback(async (nextType: ContentType) => {
@@ -99,14 +100,10 @@ export default function StudioClient() {
 
   useEffect(() => { void checkSession(); }, [checkSession]);
   useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("login") !== "success") return;
-    setShowWelcome(true);
-    url.searchParams.delete("login");
-    window.history.replaceState({}, document.title, url.toString());
+    if (!showWelcome) return;
     const timer = window.setTimeout(() => setShowWelcome(false), 4500);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [showWelcome]);
   useEffect(() => {
     if (authenticated) void loadItems(type);
   }, [authenticated, loadItems, type]);
@@ -194,21 +191,23 @@ export default function StudioClient() {
   if (!authenticated) {
     return (
       <main className="mx-auto flex min-h-[78vh] w-[92%] max-w-2xl items-center justify-center pt-24">
-        <section className="system-panel relative w-full overflow-hidden border border-cyan-200/35 bg-[#091b27]/90 p-8 text-center shadow-[0_24px_80px_rgba(0,12,24,.45)] backdrop-blur-xl md:p-12">
-          <div className="pointer-events-none absolute inset-3 border border-cyan-200/10" />
-          <div className="pointer-events-none absolute left-0 top-0 h-px w-2/5 bg-cyan-300/75" />
-          <div className="pointer-events-none absolute bottom-0 right-0 h-px w-2/5 bg-amber-200/75" />
-          <div className="relative mx-auto mb-7 flex h-16 w-16 items-center justify-center border border-cyan-200/50 bg-cyan-300/10 text-cyan-200 shadow-[0_0_35px_rgba(103,232,249,.2)]">
+        <section className="system-panel shore-auth relative w-full overflow-hidden border border-white/55 bg-white/58 p-8 text-center shadow-[0_24px_80px_rgba(15,45,70,.2)] backdrop-blur-xl dark:border-sky-200/15 dark:bg-[#102033]/84 dark:shadow-[0_24px_80px_rgba(0,12,24,.48)] md:p-12">
+          <div className="pointer-events-none absolute inset-3 border border-sky-400/15 dark:border-cyan-200/10" />
+          <div className="shore-butterfly pointer-events-none absolute -left-8 top-5 opacity-35" />
+          <div className="shore-butterfly shore-butterfly-reverse pointer-events-none absolute -right-5 bottom-2 opacity-25" />
+          <div className="pointer-events-none absolute left-0 top-0 h-px w-2/5 bg-sky-400/75 dark:bg-cyan-300/75" />
+          <div className="pointer-events-none absolute bottom-0 right-0 h-px w-2/5 bg-amber-300/85" />
+          <div className="relative mx-auto mb-7 flex h-16 w-16 items-center justify-center border border-sky-400/55 bg-sky-400/10 text-sky-600 shadow-[0_0_35px_rgba(56,189,248,.2)] dark:border-cyan-200/50 dark:text-cyan-200">
             <Pencil size={30} strokeWidth={1.4} />
           </div>
-          <p className="relative text-[10px] font-bold tracking-[0.35em] text-cyan-200/70">LINX // PERSONAL TERMINAL</p>
-          <h1 className="relative mt-4 text-3xl font-black tracking-[0.12em] text-white md:text-4xl">系统认证</h1>
-          <p className="relative mt-4 text-sm leading-7 text-slate-300">漂泊者身份校验节点</p>
-          <p className="relative mt-1 text-xs tracking-wider text-slate-400">仅接受已授权的 GitHub 账号</p>
-          <a href="/api/admin/login" className="relative mt-8 inline-flex items-center gap-3 border border-cyan-200/60 bg-cyan-300/15 px-6 py-3 text-sm font-bold tracking-wider text-cyan-100 transition-all hover:bg-cyan-300/25 hover:shadow-[0_0_28px_rgba(103,232,249,.2)]">
+          <p className="relative text-[10px] font-bold tracking-[0.35em] text-sky-700/75 dark:text-cyan-200/70">LINX // SHORELINE ARCHIVE</p>
+          <h1 className="relative mt-4 text-3xl font-black tracking-[0.12em] text-slate-900 dark:text-white md:text-4xl">系统认证</h1>
+          <p className="relative mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">漂泊者身份校验节点</p>
+          <p className="relative mt-1 text-xs tracking-wider text-slate-500 dark:text-slate-400">仅接受已授权的 GitHub 账号</p>
+          <a href="/api/admin/login" className="relative mt-8 inline-flex items-center gap-3 border border-sky-500/55 bg-sky-500/10 px-6 py-3 text-sm font-bold tracking-wider text-sky-800 transition-all hover:bg-sky-500/20 hover:shadow-[0_0_28px_rgba(56,189,248,.18)] dark:border-cyan-200/60 dark:text-cyan-100">
             <LogIn size={16} /> 开始身份认证
           </a>
-          <div className="relative mt-7 flex items-center justify-center gap-2 text-[10px] tracking-widest text-amber-100/65"><span className="h-1.5 w-1.5 bg-amber-200" /> CONNECTION STANDBY</div>
+          <div className="relative mt-7 flex items-center justify-center gap-2 text-[10px] tracking-widest text-amber-700/75 dark:text-amber-100/65"><span className="h-1.5 w-1.5 bg-amber-300" /> CONNECTION STANDBY</div>
         </section>
       </main>
     );
@@ -288,7 +287,7 @@ export default function StudioClient() {
           </div>
         </section>
       </div>
-      <style jsx>{`.system-panel { clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); } .studio-input { width: 100%; border: 1px solid rgba(79,127,164,.5); background: rgba(240,248,250,.7); padding: .65rem .75rem; color: #102a3a; outline: none; } .studio-input:focus { border-color: #67e8f9; box-shadow: 0 0 0 2px rgba(103,232,249,.16); } :global(.dark) .studio-input { border-color: rgba(125,211,252,.3); background: rgba(4,17,26,.72); color: #e2e8f0; }`}</style>
+      <style jsx>{`.system-panel { clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); } .shore-butterfly { width: 88px; height: 54px; background: linear-gradient(135deg, rgba(103,232,249,.75), rgba(56,189,248,.15)); clip-path: polygon(50% 48%, 12% 0, 0 44%, 34% 100%, 50% 62%, 66% 100%, 100% 44%, 88% 0); filter: drop-shadow(0 0 12px rgba(103,232,249,.45)); transform: rotate(-16deg); } .shore-butterfly-reverse { transform: rotate(152deg) scale(.82); } .studio-input { width: 100%; border: 1px solid rgba(79,127,164,.5); background: rgba(240,248,250,.7); padding: .65rem .75rem; color: #102a3a; outline: none; } .studio-input:focus { border-color: #67e8f9; box-shadow: 0 0 0 2px rgba(103,232,249,.16); } :global(.dark) .studio-input { border-color: rgba(125,211,252,.3); background: rgba(4,17,26,.72); color: #e2e8f0; }`}</style>
       </main>
     </>
   );

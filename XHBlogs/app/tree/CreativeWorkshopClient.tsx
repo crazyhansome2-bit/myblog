@@ -110,7 +110,8 @@ export default function CreativeWorkshopClient({ posts = [], chatters = [], mome
 
           {/* 顶部标题栏 */}
           <div className="w-full flex flex-col items-center mb-16 animate-fade-in-up text-center relative">
-            <div className="absolute -top-10 left-1/2 h-28 w-28 -translate-x-1/2 rounded-full border border-cyan-300/30 bg-cyan-200/10 blur-sm dark:border-cyan-300/20 dark:bg-cyan-300/10" />
+            <div className="shorekeeper-butterfly pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 opacity-55" />
+            <div className="shorekeeper-orbit pointer-events-none absolute -top-10 left-1/2 h-28 w-36 -translate-x-1/2 border border-cyan-300/25 dark:border-cyan-300/20" />
             <div className="absolute top-8 left-1/2 h-px w-full max-w-2xl -translate-x-1/2 bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
             <h1 className="relative text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-widest mb-3 flex items-center justify-center gap-3 transition-colors duration-700">
               <Compass className="text-cyan-500 dark:text-cyan-300" size={40} /> 漂泊终点
@@ -166,6 +167,10 @@ export default function CreativeWorkshopClient({ posts = [], chatters = [], mome
       <style jsx global>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .shorekeeper-butterfly { width: 104px; height: 64px; background: linear-gradient(135deg, rgba(103,232,249,.88), rgba(14,165,233,.18)); clip-path: polygon(50% 47%, 12% 0, 0 43%, 33% 100%, 50% 61%, 67% 100%, 100% 43%, 88% 0); filter: drop-shadow(0 0 18px rgba(103,232,249,.55)); animation: shorekeeper-drift 5s ease-in-out infinite; }
+        .shorekeeper-orbit { border-radius: 50%; transform-origin: center; animation: shorekeeper-orbit 12s linear infinite; }
+        @keyframes shorekeeper-drift { 0%,100% { transform: translateX(-50%) translateY(0) rotate(-8deg); } 50% { transform: translateX(-50%) translateY(-7px) rotate(8deg); } }
+        @keyframes shorekeeper-orbit { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
         @keyframes potion-wave { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
         @keyframes bubble-rise { 0% { transform: translateY(0) scale(1); opacity: 0; } 20% { opacity: 0.8; } 100% { transform: translateY(-40px) scale(0.5); opacity: 0; } }
       `}</style>
