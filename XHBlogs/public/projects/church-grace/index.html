@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教会恩赐系统 | 罗豪杰的系统策划作品</title>
+  <meta name="description" content="两分钟 Unity 实机演示：公共神恩分配、成员培养、方案选择与委派回收。个人游戏系统策划原型。">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f4f5f3;color:#202623;font-family:system-ui,"Microsoft YaHei",sans-serif;letter-spacing:0}
+    main{max-width:1100px;margin:auto;padding:28px 24px 48px}
+    a{color:#216650;text-underline-offset:4px}
+    nav{display:flex;justify-content:space-between;gap:16px;font-size:14px;margin-bottom:28px}
+    h1{font-size:32px;line-height:1.3;margin:8px 0 12px}
+    h2{font-size:18px;margin:0 0 12px}
+    p{font-size:15px;line-height:1.85;margin:8px 0}
+    .meta{font-size:13px;color:#616b65}
+    video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#0c1011;margin-top:22px}
+    .caption{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 28px}
+    .details{display:grid;grid-template-columns:1fr 1fr;gap:32px;border-top:1px solid #d7ddd7;padding-top:24px}
+    ol{padding-left:22px;font-size:14px;line-height:1.9;margin:0}
+    footer{border-top:1px solid #d7ddd7;margin-top:28px;padding-top:18px}
+    @media(max-width:600px){main{padding:20px 16px 32px}h1{font-size:26px}.details{grid-template-columns:1fr;gap:24px}nav{margin-bottom:22px}}
+  </style>
+</head>
+<body>
+<main>
+  <nav><a href="/projects">返回项目列表</a><span>罗豪杰 · 系统策划作品</span></nav>
+  <header>
+    <p class="meta">个人系统原型 / Unity 6.6 / 2026.09</p>
+    <h1>教会恩赐系统</h1>
+    <p>把有限的公共神恩分配给不同成员，通过恩赐配置与委派回报，验证组织资源分配和成员培养的取舍。</p>
+  </header>
+  <video controls playsinline preload="metadata" poster="/projects/church-grace/poster.jpg" width="1920" height="1080" aria-label="教会恩赐系统两分钟实机演示">
+    <source src="/projects/church-grace/demo.mp4" type="video/mp4">
+    <track src="/projects/church-grace/captions.vtt" kind="captions" srclang="zh" label="中文">
+    <p><a href="/projects/church-grace/demo.mp4">打开演示视频</a></p>
+  </video>
+  <div class="caption">
+    <span class="meta">02:00 · 1080p · 中文字幕 · 无配音 · Unity 实机流程自动推进</span>
+    <a href="/projects/church-grace/demo.mp4">直接打开视频</a>
+  </div>
+  <section class="details">
+    <div>
+      <h2>演示流程</h2>
+      <ol>
+        <li>比较当前队伍与救援目标，预览恩赐方案的成本和收益。</li>
+        <li>确认分配公共神恩，调整成员搭配，达到任务门槛。</li>
+        <li>派出队伍并锁定成员，推进日期后领取回报。</li>
+        <li>转化资源、升级恩赐，回到下一轮培养决策。</li>
+      </ol>
+    </div>
+    <div>
+      <h2>设计重点</h2>
+      <p>公共资源带来跨成员的机会成本；有限槽位限制兼得；部分退款保留调整余地，同时避免免费反复换装。</p>
+      <p>8 条途径、24 项恩赐、3 档等级。基础 2 个槽位，设施升级后解锁第 3 槽；委派结果由能力门槛确定，并在派出时保存结算快照。</p>
+    </div>
+  </section>
+  <footer>
+    <p class="meta">项目边界：这是游戏内系统的本地单机原型，不是完整商业游戏或多人公会服务。代码、美术与文档整理使用 AI 辅助，当前演示不代表真实玩家平衡测试结论。</p>
+  </footer>
+</main>
+</body>
+</html>

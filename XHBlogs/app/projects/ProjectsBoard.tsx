@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, FileText, ImageIcon, Search } from "lucide-react";
+import { ExternalLink, FileText, ImageIcon, Search, Play, Landmark } from "lucide-react";
 import BackButton from "../../components/BackButton";
 import { projectsData } from "../../data/projects";
+import { churchGraceProject, type PortfolioProject } from "../../data/churchGraceProject";
+
+const portfolioProjects: PortfolioProject[] = [churchGraceProject, ...projectsData];
 
 const actionLinkClass =
   "inline-flex h-9 items-center gap-2 rounded-md border border-white/30 bg-white/85 px-3 text-xs font-bold text-slate-900 shadow-sm backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-slate-950/75 dark:text-white dark:hover:bg-slate-900";
@@ -13,10 +16,10 @@ export default function ProjectsBoard() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProjects = useMemo(() => {
-    if (searchQuery.trim() === "") return projectsData;
+    if (searchQuery.trim() === "") return portfolioProjects;
     const query = searchQuery.trim().toLowerCase();
 
-    return projectsData.filter(
+    return portfolioProjects.filter(
       (project) =>
         project.name.toLowerCase().includes(query) ||
         project.description.toLowerCase().includes(query) ||
@@ -87,7 +90,7 @@ export default function ProjectsBoard() {
                       <div className="mb-4 flex items-start justify-between gap-4">
                         <div className="flex items-center gap-4">
                           <span className="text-4xl" aria-hidden="true">
-                            {project.icon}
+                            {project.icon || <Landmark className="h-8 w-8" />}
                           </span>
                           <h2 className="text-2xl font-bold leading-tight transition-colors group-hover:text-pink-200">
                             {project.name}
@@ -141,6 +144,12 @@ export default function ProjectsBoard() {
                       </div>
 
                       <div className="mt-auto flex flex-wrap gap-2">
+                        {project.demoUrl && (
+                          <a href={project.demoUrl} className={actionLinkClass}>
+                            <Play className="h-3.5 w-3.5" />
+                            观看系统演示 · 2 分钟
+                          </a>
+                        )}
                         {project.summaryUrl && (
                           <a href={project.summaryUrl} target="_blank" rel="noopener noreferrer" className={actionLinkClass}>
                             项目摘要
@@ -168,7 +177,23 @@ export default function ProjectsBoard() {
                       </div>
                     </div>
 
-                    {project.architectureImageUrl && (
+                    {project.demoUrl ? (
+                      <a
+                        href={project.demoUrl}
+                        className="relative self-center overflow-hidden rounded-lg border border-white/25 bg-black"
+                      >
+                        <img
+                          src={project.cover}
+                          alt="教会恩赐系统 Unity 实机演示"
+                          width={1920}
+                          height={1080}
+                          className="aspect-video w-full object-contain"
+                        />
+                        <span className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white">
+                          <Play className="h-4 w-4" /> 在线观看完整决策流程
+                        </span>
+                      </a>
+                    ) : project.architectureImageUrl && (
                       <a
                         href={project.architectureUrl ?? project.architectureImageUrl}
                         target="_blank"
