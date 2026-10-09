@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>教会恩赐系统 | 系统策划作品演示</title>
-  <meta name="description" content="两分钟 Unity 实机演示：公共神恩分配、成员培养、方案选择与委派回收。个人游戏系统策划原型。">
+  <meta name="description" content="单机肉鸽教会恩赐系统：敌方权柄随机抽取、信徒恩赐解锁、远征定向补充、同类合成与原等阶收回。Unity 规则验证原型，曼波 AI 解说。">
   <style>
     *{box-sizing:border-box}
     body{margin:0;background:#f4f5f3;color:#202623;font-family:system-ui,"Microsoft YaHei",sans-serif;letter-spacing:0}
@@ -20,6 +20,9 @@
     .details{display:grid;grid-template-columns:1fr 1fr;gap:32px;border-top:1px solid #d7ddd7;padding-top:24px}
     ol{padding-left:22px;font-size:14px;line-height:1.9;margin:0}
     footer{border-top:1px solid #d7ddd7;margin-top:28px;padding-top:18px}
+    .flow{border-top:1px solid #d7ddd7;margin-top:28px;padding-top:24px}
+    .flow a{display:block;overflow-x:auto}
+    .flow img{display:block;max-width:none;height:auto;margin:20px auto 0;width:760px}
     @media(max-width:600px){main{padding:20px 16px 32px}h1{font-size:26px}.details{grid-template-columns:1fr;gap:24px}nav{margin-bottom:22px}}
   </style>
 </head>
@@ -27,37 +30,46 @@
 <main>
   <nav><a href="/projects">返回项目列表</a><span>系统策划作品演示</span></nav>
   <header>
-    <p class="meta">个人系统原型 / Unity 6.6 / 2026.09</p>
+    <p class="meta">独立系统设计 / Unity 6.6 / 2026.10</p>
     <h1>教会恩赐系统</h1>
-    <p>把有限的公共神恩分配给不同成员，通过恩赐配置与委派回报，验证组织资源分配和成员培养的取舍。</p>
+    <p>为单机肉鸽设计的神明成长系统。首段剧情后开启，通过恩赐信徒解锁主角能力，让随机权柄获取、定向资源积累与信徒庇护形成循环。</p>
   </header>
-  <video controls playsinline preload="metadata" poster="/projects/church-grace/poster.jpg" width="1920" height="1080" aria-label="教会恩赐系统两分钟实机演示">
-    <source src="/projects/church-grace/demo.mp4?v=mambo-1" type="video/mp4">
-    <track src="/projects/church-grace/captions.vtt?v=mambo-1" kind="captions" srclang="zh" label="中文">
-    <p><a href="/projects/church-grace/demo.mp4?v=mambo-1">打开演示视频</a></p>
+  <video controls playsinline preload="metadata" poster="/projects/church-grace/authority-poster.jpg?v=20261009" width="1920" height="1080" aria-label="教会恩赐权柄与信徒锚定规则演示">
+    <source src="/projects/church-grace/authority-demo.mp4?v=20261009" type="video/mp4">
+    <track src="/projects/church-grace/authority-captions.vtt?v=20261009" kind="captions" srclang="zh" label="中文">
+    <p><a href="/projects/church-grace/authority-demo.mp4?v=20261009">打开演示视频</a></p>
   </video>
   <div class="caption">
-    <span class="meta">02:00 · 1080p · 中文字幕 · 曼波 AI 语音解说 · Unity 实机流程自动推进</span>
-    <a href="/projects/church-grace/demo.mp4?v=mambo-1">直接打开视频</a>
+    <span class="meta">02:46 · 1080p · 中文字幕 · 曼波 AI 解说 · Unity 规则实机录制，流程自动推进</span>
+    <a href="/projects/church-grace/authority-demo.mp4?v=20261009">直接打开视频</a>
   </div>
   <section class="details">
     <div>
       <h2>演示流程</h2>
       <ol>
-        <li>比较当前队伍与救援目标，预览恩赐方案的成本和收益。</li>
-        <li>确认分配公共神恩，调整成员搭配，达到任务门槛。</li>
-        <li>派出队伍并锁定成员，推进日期后领取回报。</li>
-        <li>转化资源、升级恩赐，回到下一轮培养决策。</li>
+        <li>获得敌人能力，从该敌人信仰的神明权柄池中，抽取对应等阶权柄。</li>
+        <li>恩赐给信徒后，主角对应能力才生效；持有权柄与能力生效分开记录。</li>
+        <li>派遣不减少人数或锚定贡献；超凡材料转为特殊物质，定向补充已解锁权柄。</li>
+        <li>三份同种同阶权柄合成下一阶，重新检查信徒锚定后恩赐。</li>
+        <li>锚定不足带来理智风险；玩家主动收回后，主角效果消失，但库存权柄保留原等阶。</li>
       </ol>
     </div>
     <div>
       <h2>设计重点</h2>
-      <p>公共资源带来跨成员的机会成本；有限槽位限制兼得；部分退款保留调整余地，同时避免免费反复换装。</p>
-      <p>8 条途径、24 项恩赐、3 档等级。基础 2 个槽位，设施升级后解锁第 3 槽；委派结果由能力门槛确定，并在派出时保存结算快照。</p>
+      <p>战斗获取提供随机性，远征积累提供可规划的补充渠道。信徒人数制约高阶恩赐，使庇护信徒成为角色成长条件。</p>
+      <p>血肉成长案例：初阶快速恢复，高阶触手状态。收回二阶血肉，移除主角二阶效果，权柄仍保持二阶；人数足够后可再次恩赐。</p>
+      <p class="meta">演示中的人数、锚定门槛、兑换率与理智变化为规则测试参数，不代表最终数值平衡。</p>
     </div>
   </section>
+  <section class="flow" aria-labelledby="flow-title">
+    <h2 id="flow-title">系统流程图</h2>
+    <a href="/projects/church-grace/system-flowchart.svg?v=20261009" aria-label="打开完整系统流程图">
+      <img src="/projects/church-grace/system-flowchart.svg?v=20261009" width="1081" height="2444" loading="lazy" alt="战斗随机获取与远征定向补充汇入权柄库，经同种同阶合成、实际信徒锚定校验和恩赐使主角能力生效；主动收回移除效果、释放锚定，原等阶权柄回到库存。">
+    </a>
+  </section>
   <footer>
-    <p class="meta">项目边界：这是游戏内系统的本地单机原型，不是完整商业游戏或多人公会服务。代码、美术与文档整理使用 AI 辅助，当前演示不代表真实玩家平衡测试结论。</p>
+    <p class="meta">项目边界：个人独立设计的游戏内系统，代码、美术与文档整理使用 AI 辅助。当前视频验证规则状态，不是完整肉鸽或实时战斗；快速恢复、触手状态为能力表现定义，前摇增长、失控及视野污染尚未接入战斗。不含商业上线或真实玩家平衡测试结论。</p>
+    <p class="meta"><a href="/projects/church-grace/demo.mp4?v=mambo-1">旧版资源分配原型演示</a></p>
   </footer>
 </main>
 </body>
