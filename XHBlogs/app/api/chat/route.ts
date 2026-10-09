@@ -1,72 +1,121 @@
-// app/api/chat/route.ts
-import { siteConfig } from '../../../siteConfig'; // 确保这里的路径指向你的 siteConfig
+import { siteConfig } from "../../../siteConfig";
 
-export const runtime = 'edge';
+export const runtime = "edge";
+
+function json(data: unknown, status = 200) {
+  return Response.json(data, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
 
 export async function POST(req: Request) {
-  console.log("🚀 [1/5] 路由进入：开始对接 Gemini 3 脑回路");
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "Invalid JSON" }, 400);
+  }
+
+  if (
+    !body ||
+    typeof body !== "object" ||
+    !("message" in body) ||
+    typeof body.message !== "string"
+  ) {
+    return json({ error: "A text message is required" }, 400);
+  }
+
+  const message = body.message.trim();
+  if (!message || message.length > 2000) {
+    return json({ error: "Message must contain 1 to 2000 characters" }, 400);
+  }
+
+  const apiKey = (process.env.SILICONFLOW_API_KEY || "").trim();
+  const model = (process.env.SILICONFLOW_MODEL || "").trim();
+  if (!apiKey || !model) {
+    return json({ error: "SiliconFlow API key or model is not configured" }, 503);
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
 
   try {
-    const { message } = await req.json();
-
-    // 🌟 纯粹靠环境变量读取 API Key
-    const apiKey = (process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || '').trim();
-
-    if (!apiKey) {
-      console.error("❌ 找不到 API Key");
-      return new Response(JSON.stringify({ error: "Key missing" }), { status: 500 });
-    }
-
-    // 调用 siteConfig 的参数
-    const modelId = siteConfig.geminiConfig.modelId;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-
-    console.log(`📡 [2/5] 正在呼叫模型: ${modelId}`);
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: [{
-            text: siteConfig.geminiConfig.systemPrompt
-          }]
+    const response = await fetch(
+      "https://api.siliconflow.cn/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
-        contents: [{
-          parts: [{ text: message }]
-        }],
-        generationConfig: {
-          maxOutputTokens: siteConfig.geminiConfig.maxOutputTokens,
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: siteConfig.geminiConfig.systemPrompt },
+            { role: "user", content: message },
+          ],
+          stream: false,
+          max_tokens: 256,
           temperature: siteConfig.geminiConfig.temperature,
-        }
-      })
-    });
-
-    const data = await response.json();
+        }),
+        signal: controller.signal,
+        cache: "no-store",
+      },
+    );
 
     if (!response.ok) {
-      console.error("🚨 Gemini 3 拒绝了请求:", JSON.stringify(data));
-      return new Response(JSON.stringify({
-        error: `模型拒绝访问: ${response.status}`,
-        details: data.error?.message || "未知错误"
-      }), { status: response.status });
+      // Log only the status; never log credentials or visitors' messages.
+      console.error("SiliconFlow upstream status:", response.status);
+      const error =
+        response.status === 429
+          ? "Model rate limit reached; try again later"
+          : response.status === 401 || response.status === 403
+            ? "Check the SiliconFlow API key and model permissions"
+            : response.status === 404
+              ? "Check the complete SiliconFlow model ID"
+              : "Model service failed; check the account and model settings";
+      return json({ error }, response.status === 429 ? 429 : 502);
     }
 
-    console.log("✅ [3/5] Google 成功响应");
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "本喵现在不想理你喵...";
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      return json({ error: "Model service returned invalid JSON" }, 502);
+    }
 
-    console.log("🎉 [4/5] 回复已生成，准备传回前端");
+    const content = data?.choices?.[0]?.message?.content;
+    if (typeof content !== "string" || !content.trim()) {
+      return json({ error: "Model service returned no text reply" }, 502);
+    }
 
-    return new Response(JSON.stringify({ reply }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-  } catch (error: any) {
-    console.error("🔥 [5/5] 运行时崩溃:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return json({ reply: content.trim() });
+  } catch {
+    return json(
+      {
+        error: controller.signal.aborted
+          ? "Model request timed out"
+          : "Unable to reach the model service",
+      },
+      controller.signal.aborted ? 504 : 502,
+    );
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
 export async function GET() {
-  return new Response(JSON.stringify({ status: "Ready", model: "Gemini 3 Flash Preview" }), { status: 200 });
+  const configured = Boolean(
+    process.env.SILICONFLOW_API_KEY?.trim() &&
+      process.env.SILICONFLOW_MODEL?.trim(),
+  );
+  return json(
+    {
+      provider: "SiliconFlow",
+      configured,
+      connectionVerified: false,
+    },
+    configured ? 200 : 503,
+  );
 }
